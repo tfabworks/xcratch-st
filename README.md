@@ -12,15 +12,25 @@
 
 | URL パラメータ | 内容 |
 | --- | --- |
+| （bpa 未指定） | `?bpa=1` と同じ |
+| `?bpa=0` | ブロックパレットの表示/非表示ボタンを出さない（常に表示） |
 | `?bpa=1` | ブロックパレットの表示/非表示ボタンを有効化（初期状態は表示） |
 | `?bpa=2` | ブロックパレットの表示/非表示ボタンを有効化（初期状態は非表示） |
 | `?ss=1` | ステージを小さいサイズで開始 |
 | `#<sb3 の URL>` | 指定したプロジェクトをロード（xcratch 標準機能） |
 
+`bpa` はブラウザー内保存（IndexedDB）のプロジェクトヘッダーにも保存され、
+プロジェクト一覧から開いたときや、前回のプロジェクトを自動で再開したときに URL へ復元されます
+（保存時点の URL の値をそのまま写すので、`bpa` 無しで保存すれば消えます）。
+書き出した .sb3 ファイルには含まれません。
+
 例: `https://xcratch-st.699.jp/?bpa=2#https://699.jp/d/xcratch/xxxx.sb3`
 
 変更ファイル（すべて `packages/scratch-gui/` 配下）:
+- `src/lib/xcratch-st-bpa.ts` — `bpa` の読み書きヘルパー
 - `src/containers/blocks.jsx` — パレット表示/非表示ボタン
+- `src/lib/local-project-db.ts`, `src/lib/local-project-storage.ts` — ヘッダーへの `bpa` 保存
+- `src/containers/project-library.jsx`, `src/playground/render-gui.jsx` — 開くときの `bpa` 復元
 - `src/reducers/stage-size.js` — `?ss=1`
 - `src/playground/index.ejs` — Google Analytics タグ
 - `scripts/preload-rules.json` — 公式サイトと同じ拡張機能プリロード設定（xcratch.github.io/scripts/preload-rules.json のコピー）

@@ -5,6 +5,7 @@ import {GUIStorage, ProjectId, ProjectVersionItem, TranslatorFunction} from '../
 
 import * as db from './local-project-db';
 import {computeVersionDiff} from './project-diff';
+import {getBpaFromUrl} from './xcratch-st-bpa';
 
 const LAST_PROJECT_KEY = 'xcratch:lastLocalProjectId';
 
@@ -158,6 +159,7 @@ export interface LocalProjectListItem {
     created: number;
     modified: number;
     comment?: string;
+    bpa?: string;
 }
 
 // Alias of the type shared with WorkshopProjectStorage (see gui-config.ts).
@@ -246,15 +248,25 @@ export class LocalProjectStorage implements GUIStorage {
 
         return this.enqueueWrite(id, async () => {
             const now = Date.now();
+            // xcratch-st: 保存時点の URL の bpa をヘッダーに写す（無ければ消す）
+            const bpa = getBpaFromUrl();
+            const withBpa = (header: db.ProjectHeader): db.ProjectHeader => {
+                if (bpa) {
+                    header.bpa = bpa;
+                } else {
+                    delete header.bpa;
+                }
+                return header;
+            };
             if (isCreate) {
-                await db.putHeader({
+                await db.putHeader(withBpa({
                     id,
                     name: params.title || this.currentTitle || 'Untitled',
                     thumbnail: null,
                     comment: '',
                     created: now,
                     modified: now
-                });
+                }));
                 if (aliasKey !== null && !params.isCopy && !params.isRemix) {
                     this.aliases.set(aliasKey, id);
                 }
@@ -268,17 +280,17 @@ export class LocalProjectStorage implements GUIStorage {
                     // loading states where the rename HOC doesn't persist them.
                     const newName = params.title || this.currentTitle;
                     if (newName) header.name = newName;
-                    await db.putHeader(header);
+                    await db.putHeader(withBpa(header));
                 } else {
                     // Header vanished (e.g. deleted in another tab): recreate it
-                    await db.putHeader({
+                    await db.putHeader(withBpa({
                         id,
                         name: params.title || this.currentTitle || 'Untitled',
                         thumbnail: null,
                         comment: '',
                         created: now,
                         modified: now
-                    });
+                    }));
                 }
             }
 
@@ -426,7 +438,8 @@ export class LocalProjectStorage implements GUIStorage {
             thumbnail: header.thumbnail,
             created: now,
             modified: now,
-            comment: header.comment || ''
+            comment: header.comment || '',
+            ...(header.bpa ? {bpa: header.bpa} : {})
         });
         await db.putBody({id: newId, body: body.body});
         await db.putVersion({projectId: newId, timestamp: now, parentTimestamp: null, body: body.body, thumbnail: header.thumbnail});
@@ -768,6 +781,15 @@ export const setLastLocalProjectId = (id: string): void => {
     } catch {
         // ignore
     }
+};
+
+/*
+ * xcratch-st: ローカルプロジェクトのヘッダーに保存された bpa を返す（無ければ null）。
+ */
+export const getLocalProjectBpa = async (id: string): Promise<string | null> => {
+    if (!isLocalProjectId(id)) return null;
+    const header = await db.getHeader(String(id));
+    return header && header.bpa ? header.bpa : null;
 };
 
 export const localProjectExists = async (id: string): Promise<boolean> => {

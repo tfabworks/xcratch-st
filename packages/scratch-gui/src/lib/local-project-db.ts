@@ -27,6 +27,9 @@ export interface ProjectHeader {
     // touch `modified` (it is not project content). Absent on records from
     // older builds.
     comment?: string;
+    // xcratch-st: 最後に保存したときの URL の bpa（ブロックパレット表示切替）。
+    // 未指定で保存されたレコードには存在しない。
+    bpa?: string;
 }
 
 export interface ProjectBody {

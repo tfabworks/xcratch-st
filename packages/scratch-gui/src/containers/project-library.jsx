@@ -8,6 +8,7 @@ import VM from '@scratch/scratch-vm';
 import intlShape from '../lib/intlShape.js';
 import log from '../lib/log.js';
 import {GUIStoragePropType} from '../gui-config';
+import {setBpaInUrl} from '../lib/xcratch-st-bpa';
 import ProjectLibraryComponent from '../components/project-library/project-library.jsx';
 
 import {
@@ -156,8 +157,20 @@ class ProjectLibrary extends React.Component {
         // Note: don't dispatch setProjectTitle here — while the previous
         // project is still showing, a title change would be persisted onto
         // its header. LocalProjectHOC restores the title after loading.
-        this.props.onSetProjectId(id);
-        this.props.onRequestClose();
+        const open = () => {
+            this.props.onSetProjectId(id);
+            this.props.onRequestClose();
+        };
+        // xcratch-st: 保存時の bpa（ブロックパレット表示切替）を URL に復元してから開く
+        const storage = this.props.storage;
+        if (typeof storage.getProjectHeader !== 'function') {
+            open();
+            return;
+        }
+        storage.getProjectHeader(id)
+            .then(header => setBpaInUrl(header ? header.bpa : null))
+            .catch(err => log.error(err))
+            .then(open);
     }
     handleCopyProject (id) {
         if (typeof this.props.storage.duplicateProject !== 'function') return;

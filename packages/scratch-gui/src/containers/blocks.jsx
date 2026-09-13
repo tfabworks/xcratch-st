@@ -10,6 +10,7 @@ import VM from '@scratch/scratch-vm';
 import {initializeBlocksToImage} from '../lib/blocks-to-image';
 import {initializeEditValueInEditor} from '../lib/edit-value-in-editor';
 import {initializeListEditor} from '../lib/list-editor';
+import {BPA_CHANGED_EVENT, getEffectiveBpa} from '../lib/xcratch-st-bpa';
 import {initializeReportBubbleCopy} from '../lib/report-bubble-copy';
 
 import analytics from '../lib/analytics';
@@ -152,7 +153,9 @@ class Blocks extends React.Component {
         const toolboxWorkspace = this.workspace.getFlyout().getWorkspace();
 
         // ブロックツールバーの表示/非表示を切り替えられるようにする
-        this.toolboxtogglerSetVisibility()
+        this.toolboxtogglerSetVisibility();
+        // プロジェクト一覧から開いたときなど、URL の bpa が変わったら初期化し直す
+        window.addEventListener(BPA_CHANGED_EVENT, this.handleBpaChanged);
 
         const varListButtonCallback = type =>
             (() => this.ScratchBlocks.Variables.createVariable(this.workspace, null, type));
@@ -194,15 +197,16 @@ class Blocks extends React.Component {
             });
         });
     }
+    handleBpaChanged = () => {
+        if (!this.workspace) return;
+        this.toolboxtogglerSetVisibility();
+    }
     toolboxtogglerSetVisibility = (visibility) => {
         if(visibility === undefined) {
-            // 初期化
-            const bpa = new URLSearchParams(window.location.search).get('bpa') || '0';
-            if(bpa === '0') {
-                document.body.classList.add('toolboxtoggler_disabled');
-            } else {
-                document.body.classList.add('toolboxtoggler_enabled');
-            }
+            // 初期化（未指定は '1' 扱い。'0' を明示したときだけボタンを出さない）
+            const bpa = getEffectiveBpa();
+            document.body.classList.remove('toolboxtoggler_disabled', 'toolboxtoggler_enabled');
+            document.body.classList.add(bpa === '0' ? 'toolboxtoggler_disabled' : 'toolboxtoggler_enabled');
             // 始めて非表示→表示が行われた後にtrueになる
             this.toolboxtoggler_FirstOpenDone = false;
             this.toolboxtogglerSetVisibility(bpa !== '2');
@@ -281,6 +285,7 @@ class Blocks extends React.Component {
         }
     }
     componentWillUnmount () {
+        window.removeEventListener(BPA_CHANGED_EVENT, this.handleBpaChanged);
         this.detachVM();
         this.workspace.dispose();
         clearTimeout(this.toolboxUpdateTimeout);

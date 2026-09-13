@@ -10,9 +10,11 @@ import {
     getLastLocalProjectId,
     setLastLocalProjectId,
     isLocalProjectId,
-    localProjectExists
+    localProjectExists,
+    getLocalProjectBpa
 } from '../lib/local-project-storage';
 import log from '../lib/log.js';
+import {getBpaFromUrl} from '../lib/xcratch-st-bpa';
 import {PLATFORM} from '../lib/platform.js';
 
 const onClickLogo = () => {
@@ -43,6 +45,21 @@ const updateProjectIdInHash = projectId => {
     setLastLocalProjectId(id);
 };
 
+// xcratch-st: URL に bpa が無いときだけ、開くローカルプロジェクトに保存された
+// bpa を URL に補う（マウント前なので replaceState だけでよい）。
+const restoreBpaFromProject = async id => {
+    if (getBpaFromUrl() !== null) return;
+    try {
+        const bpa = await getLocalProjectBpa(id);
+        if (!bpa) return;
+        const url = new URL(window.location.href);
+        url.searchParams.set('bpa', bpa);
+        history.replaceState(null, '', url.toString());
+    } catch (err) {
+        log(err);
+    }
+};
+
 /**
  * Decide which project to open before mounting:
  * - keep a `#https://...` or existing local `#<id>` hash as-is
@@ -57,14 +74,18 @@ const prepareInitialProject = async () => {
         const exists = await localProjectExists(hashMatch[1]);
         if (!exists) {
             history.replaceState(null, '', window.location.pathname + window.location.search);
+            return;
         }
+        await restoreBpaFromProject(hashMatch[1]);
         return;
     }
     const lastId = getLastLocalProjectId();
     if (lastId && await localProjectExists(lastId)) {
         history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${lastId}`);
+        await restoreBpaFromProject(lastId);
     }
 };
+
 
 /*
  * Render the GUI playground. This is a separate function because importing anything
