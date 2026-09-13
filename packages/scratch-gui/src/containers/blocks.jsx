@@ -151,6 +151,9 @@ class Blocks extends React.Component {
 
         const toolboxWorkspace = this.workspace.getFlyout().getWorkspace();
 
+        // ブロックツールバーの表示/非表示を切り替えられるようにする
+        this.toolboxtogglerSetVisibility()
+
         const varListButtonCallback = type =>
             (() => this.ScratchBlocks.Variables.createVariable(this.workspace, null, type));
         const procButtonCallback = () => {
@@ -190,6 +193,40 @@ class Blocks extends React.Component {
                 this.handleCategorySelected('faceSensing');
             });
         });
+    }
+    toolboxtogglerSetVisibility = (visibility) => {
+        if(visibility === undefined) {
+            // 初期化
+            const bpa = new URLSearchParams(window.location.search).get('bpa') || '0';
+            if(bpa === '0') {
+                document.body.classList.add('toolboxtoggler_disabled');
+            } else {
+                document.body.classList.add('toolboxtoggler_enabled');
+            }
+            // 始めて非表示→表示が行われた後にtrueになる
+            this.toolboxtoggler_FirstOpenDone = false;
+            this.toolboxtogglerSetVisibility(bpa !== '2');
+            return;
+        }
+        const toolbox = this.workspace.getToolbox();
+        if(!toolbox) {
+            return;
+        }
+        // デフォルトのツールバーの幅を記憶しておく（基本は 310 固定ぽいが念の為）
+        if(typeof this.toolboxtoggler_default_width === 'undefined') {
+            this.toolboxtoggler_default_width = toolbox.width;
+        }
+        if(visibility) {
+            document.body.classList.add('toolboxtoggler_shown');
+            document.body.classList.remove('toolboxtoggler_hidden');
+            toolbox.width = this.toolboxtoggler_default_width;
+        } else {
+            document.body.classList.remove('toolboxtoggler_shown');
+            document.body.classList.add('toolboxtoggler_hidden');
+            toolbox.width = 0;
+        }
+        this.requestToolboxUpdate(); // ツールバーの幅を変更したのでSVGの再描画
+        window.dispatchEvent(new Event('resize')); // ツールバーの表示非表示に応じてコードブロックエリアの左端位置を再調整するために実行
     }
     shouldComponentUpdate (nextProps, nextState) {
         return (
@@ -710,6 +747,40 @@ class Blocks extends React.Component {
                     onDrop={this.handleDrop}
                     {...props}
                 />
+                <button
+                    id="toolboxtoggler_button"
+                    type="button"
+                    style={{
+                        position: 'absolute',
+                        top: '1px',
+                        zIndex: '50', // 39以下だとツールバーのSVGの裏に隠れてしまうことがある
+                        width: '20px',
+                        height: 'calc(100% - 2px)',
+                        padding: '0',
+                        color: 'hsla(225, 15%, 40%, 1)',
+                        backgroundColor: 'white',
+                        borderRadius: 'calc(0.5rem / 2) 0 0 calc(0.5rem / 2)',
+                        border: '1px solid hsla(0, 0%, 0%, 0.15)',
+                    }}
+                    onClick={() => this.toolboxtogglerSetVisibility(!document.body.classList.contains('toolboxtoggler_shown'))}
+                />
+                <style type="text/css">{`
+                    body.toolboxtoggler_disabled #toolboxtoggler_button { display: none; }
+                    body.toolboxtoggler_shown #toolboxtoggler_button { left: 310px; opacity: 0.75; }
+                    body.toolboxtoggler_shown #toolboxtoggler_button::after { content: '\u25C0'; }
+                    body.toolboxtoggler_hidden #toolboxtoggler_button { left: 0; opacity: 1; }
+                    body.toolboxtoggler_hidden #toolboxtoggler_button::after { content: '\u25B6'; }
+                    body.toolboxtoggler_hidden :is(
+                        div[class*="gui_extension-button"],
+                        div[class*="extension-button_extension-button-container"],
+                        div.blocklyToolboxDiv,
+                        svg.blocklyFlyout,
+                        svg.blocklyFlyoutScrollbar
+                    ) {
+                        display: none;
+                        visibility: hidden; /* 本体側で blocklyToolboxDiv 要素の .style.display が書き換えられてCSS指定が負けるケースがあるので visibility でも消しておく*/
+                    }
+                `}</style>
                 {this.state.prompt ? (
                     <Prompt
                         defaultValue={this.state.prompt.defaultValue}

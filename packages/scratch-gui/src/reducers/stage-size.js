@@ -3,7 +3,9 @@ import {STAGE_DISPLAY_SIZES} from '../lib/layout-constants.js';
 const SET_STAGE_SIZE = 'scratch-gui/StageSize/SET_STAGE_SIZE';
 
 const initialState = {
-    stageSize: STAGE_DISPLAY_SIZES.large
+    // `?ss=1` で小さいステージから開始する
+    stageSize: new URLSearchParams(window.location.search).get('ss') === '1' ?
+        STAGE_DISPLAY_SIZES.small : STAGE_DISPLAY_SIZES.large
 };
 
 const reducer = function (state, action) {

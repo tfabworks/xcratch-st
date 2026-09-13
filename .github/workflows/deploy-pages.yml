@@ -1,0 +1,55 @@
+name: Deploy to GitHub Pages
+
+on:
+    push:
+        branches: [xcratch]
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+concurrency:
+    group: pages
+    cancel-in-progress: true
+
+jobs:
+    build-deploy:
+        runs-on: ubuntu-latest
+        env:
+            NODE_OPTIONS: --max-old-space-size=4000
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  cache: npm
+                  node-version-file: .nvmrc
+            # scratch-paint -> paper.js -> canvas が要求するシステムライブラリ（公式 xcratch.github.io の手順と同じ）
+            - name: Install system library dependencies
+              run: |
+                  missing_libraries="$(
+                    ldconfig -p | grep -q 'libcairo\.so' || echo libcairo2-dev
+                    pkg-config pangocairo || echo libpango1.0-dev
+                    pkg-config libssl || echo libssl-dev
+                    pkg-config libjpeg || echo libjpeg-dev
+                    test -f /usr/include/gif_lib.h || echo libgif-dev
+                  )"
+                  echo "Missing libraries: [$missing_libraries]"
+                  if [ -n "$missing_libraries" ]; then
+                    sudo apt update
+                    sudo apt install -y $missing_libraries
+                  fi
+            - name: Install NPM dependencies
+              run: NODE_ENV=development npm ci
+            - name: Preload extensions
+              working-directory: packages/scratch-gui
+              run: npm run preload
+            - name: Build packages
+              run: npm run build
+            - name: Deploy to gh-pages branch
+              uses: peaceiris/actions-gh-pages@v4
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./packages/scratch-gui/build
+                  # 独自ドメイン（Route 53 で CNAME → tfabworks.github.io を設定済み）。この行を消すとドメイン設定が解除されるので注意
+                  cname: xcratch-st.699.jp
+                  full_commit_message: "Build for ${{ github.sha }} ${{ github.event.head_commit.message }}"

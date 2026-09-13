@@ -1,3 +1,57 @@
+# xcratch-st
+
+[xcratch/scratch-editor](https://github.com/xcratch/scratch-editor) の `xcratch.github.io` ブランチ
+（公式 https://xcratch.github.io/editor/ のビルド元）をベースに、
+[tfabworks/xcratch-build](https://github.com/tfabworks/xcratch-build) の `1.patch` 相当の変更を適用したものです。
+
+公開 URL:
+- https://xcratch-st.699.jp/
+- https://tfabworks.github.io/xcratch-st/ （上記へリダイレクト）
+
+## 本家からの変更点
+
+| URL パラメータ | 内容 |
+| --- | --- |
+| `?bpa=1` | ブロックパレットの表示/非表示ボタンを有効化（初期状態は表示） |
+| `?bpa=2` | ブロックパレットの表示/非表示ボタンを有効化（初期状態は非表示） |
+| `?ss=1` | ステージを小さいサイズで開始 |
+| `#<sb3 の URL>` | 指定したプロジェクトをロード（xcratch 標準機能） |
+
+例: `https://xcratch-st.699.jp/?bpa=2#https://699.jp/d/xcratch/xxxx.sb3`
+
+変更ファイル（すべて `packages/scratch-gui/` 配下）:
+- `src/containers/blocks.jsx` — パレット表示/非表示ボタン
+- `src/reducers/stage-size.js` — `?ss=1`
+- `src/playground/index.ejs` — Google Analytics タグ
+- `scripts/preload-rules.json` — 公式サイトと同じ拡張機能プリロード設定（xcratch.github.io/scripts/preload-rules.json のコピー）
+- `static/favicon.ico` — 公式サイトの favicon
+
+## デプロイ
+
+`xcratch` ブランチへ push すると GitHub Actions（`.github/workflows/deploy-pages.yml`）が
+公式サイトと同じ手順でビルドし、`packages/scratch-gui/build` を `gh-pages` ブランチへ配置します。
+
+## 本家の更新を取り込む
+
+```bash
+git remote add upstream https://github.com/xcratch/scratch-editor.git   # 初回のみ
+git fetch upstream
+git merge upstream/xcratch.github.io
+```
+
+## ローカルで確認
+
+```bash
+NODE_ENV=development npm ci
+npm run preload -w packages/scratch-gui
+npm run build            # 全パッケージをビルド（初回は必須）
+npm start -w packages/scratch-gui   # http://localhost:8601/
+```
+
+---
+
+以下は scratch-editor 本家の README です。
+
 # scratch-editor: The Scratch Editor Monorepo
 
 If you'd like to use Scratch, please visit the [Scratch website](https://scratch.mit.edu/). You can build your own
