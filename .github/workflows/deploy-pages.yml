@@ -34,6 +34,6 @@ jobs:
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: ./build
-                  # 独自ドメインを有効にするときはコメントを外す（DNS 設定後）
-                  # cname: xcratch-st.699.jp
+                  # 独自ドメイン（Route 53 で CNAME → tfabworks.github.io を設定済み）
+                  cname: xcratch-st.699.jp
                   full_commit_message: "Build for ${{ github.sha }} ${{ github.event.head_commit.message }}"

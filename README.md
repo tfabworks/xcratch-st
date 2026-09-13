@@ -5,7 +5,7 @@
 
 公開 URL:
 - https://tfabworks.github.io/xcratch-st/
-- https://xcratch-st.699.jp/ （DNS 設定後に有効化）
+- https://xcratch-st.699.jp/
 
 ## パッチで追加された機能
 
