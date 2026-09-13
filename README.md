@@ -1,3 +1,49 @@
+# xcratch-st
+
+[xcratch/scratch-gui](https://github.com/xcratch/scratch-gui) の `xcratch` ブランチをベースに、
+[tfabworks/xcratch-build](https://github.com/tfabworks/xcratch-build) の `1.patch` を適用したものです。
+
+公開 URL:
+- https://tfabworks.github.io/xcratch-st/
+- https://xcratch-st.699.jp/ （DNS 設定後に有効化）
+
+## パッチで追加された機能
+
+| URL パラメータ | 内容 |
+| --- | --- |
+| `?bpa=1` | ブロックパレットの表示/非表示ボタンを有効化（初期状態は表示） |
+| `?bpa=2` | ブロックパレットの表示/非表示ボタンを有効化（初期状態は非表示） |
+| `?ss=1` | ステージを小さいサイズで開始 |
+| `#<sb3 の URL>` | 指定したプロジェクトをロード（xcratch 標準機能） |
+
+例: `https://tfabworks.github.io/xcratch-st/?bpa=2#https://699.jp/d/xcratch/xxxx.sb3`
+
+そのほか `src/playground/index.ejs` に Google Analytics のタグを追加しています。
+
+## デプロイ
+
+`xcratch` ブランチへ push すると GitHub Actions（`.github/workflows/deploy-pages.yml`）が
+ビルドして `gh-pages` ブランチへ配置し、GitHub Pages で公開されます。
+
+## 本家の更新を取り込む
+
+```bash
+git remote add upstream https://github.com/xcratch/scratch-gui.git   # 初回のみ
+git fetch upstream
+git merge upstream/xcratch
+```
+
+## ローカルで確認
+
+```bash
+npm ci
+npm start   # http://localhost:8601/
+```
+
+---
+
+以下は scratch-gui 本家の README です。
+
 # scratch-gui
 
 Scratch GUI is a set of React components that comprise the interface for creating and running Scratch 3.0 projects

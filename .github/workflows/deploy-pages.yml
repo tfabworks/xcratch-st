@@ -1,0 +1,39 @@
+name: Deploy to GitHub Pages
+
+on:
+    push:
+        branches: [xcratch]
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+concurrency:
+    group: pages
+    cancel-in-progress: true
+
+jobs:
+    build-deploy:
+        runs-on: ubuntu-latest
+        env:
+            NODE_OPTIONS: --max-old-space-size=4000
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  cache: npm
+                  node-version-file: .nvmrc
+            - name: Install Dependencies
+              run: npm ci
+            - name: Build
+              env:
+                  NODE_ENV: production
+              run: npm run build
+            - name: Deploy to gh-pages branch
+              uses: peaceiris/actions-gh-pages@v4
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./build
+                  # 独自ドメインを有効にするときはコメントを外す（DNS 設定後）
+                  # cname: xcratch-st.699.jp
+                  full_commit_message: "Build for ${{ github.sha }} ${{ github.event.head_commit.message }}"
