@@ -11,7 +11,6 @@ import {initializeBlocksToImage} from '../lib/blocks-to-image';
 import {initializeEditValueInEditor} from '../lib/edit-value-in-editor';
 import {initializeListEditor} from '../lib/list-editor';
 import {BPA_CHANGED_EVENT, getEffectiveBpa} from '../lib/xcratch-st-bpa';
-import {initializeReportBubbleCopy} from '../lib/report-bubble-copy';
 
 import analytics from '../lib/analytics';
 import log from '../lib/log.js';
@@ -137,8 +136,8 @@ class Blocks extends React.Component {
             this.handleListEditorOpen
         );
 
-        // Make the value-report bubble selectable and copyable
-        initializeReportBubbleCopy(this.ScratchBlocks, this.props.intl.formatMessage);
+        // xcratch-st: the value-report bubble copy button (Xcratch feature) is disabled.
+        // See src/lib/report-bubble-copy.js to re-enable.
 
         const workspaceConfig = defaultsDeep({},
             Blocks.defaultOptions,
