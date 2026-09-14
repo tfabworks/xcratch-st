@@ -18,7 +18,7 @@ import {getBpaFromUrl} from '../lib/xcratch-st-bpa';
 import {PLATFORM} from '../lib/platform.js';
 
 const onClickLogo = () => {
-    window.location = 'https://xcratch.github.io';
+    window.location = 'https://xcratch.699.jp/';
 };
 
 const handleTelemetryModalCancel = () => {
