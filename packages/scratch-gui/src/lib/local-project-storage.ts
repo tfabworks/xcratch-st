@@ -784,6 +784,18 @@ export const setLastLocalProjectId = (id: string): void => {
 };
 
 /*
+ * xcratch-st: 次回の読み込みで前回のプロジェクトを自動再開しないようにする
+ * （ロゴクリックで新規状態の `/` に戻るときに使う）。
+ */
+export const clearLastLocalProjectId = (): void => {
+    try {
+        localStorage.removeItem(LAST_PROJECT_KEY);
+    } catch {
+        // ignore
+    }
+};
+
+/*
  * xcratch-st: ローカルプロジェクトのヘッダーに保存された bpa を返す（無ければ null）。
  */
 export const getLocalProjectBpa = async (id: string): Promise<string | null> => {

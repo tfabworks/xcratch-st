@@ -9,6 +9,7 @@ import {
     LocalProjectStorage,
     getLastLocalProjectId,
     setLastLocalProjectId,
+    clearLastLocalProjectId,
     isLocalProjectId,
     localProjectExists,
     getLocalProjectBpa
@@ -17,8 +18,13 @@ import log from '../lib/log.js';
 import {getBpaFromUrl} from '../lib/xcratch-st-bpa';
 import {PLATFORM} from '../lib/platform.js';
 
+// xcratch-st: ロゴクリックでサイトのルートに戻り、新規プロジェクト状態にする。
+// URL には #<id> も ?bpa= も付けない。prepareInitialProject が前回の
+// プロジェクトを自動再開しないよう、最後に開いた ID も消しておく
+// （離脱を取り消した場合でも次の保存時に ID は再設定される）。
 const onClickLogo = () => {
-    window.location = 'https://xcratch.699.jp/';
+    clearLastLocalProjectId();
+    window.location.href = '/';
 };
 
 const handleTelemetryModalCancel = () => {
