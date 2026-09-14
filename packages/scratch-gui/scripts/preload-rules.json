@@ -1,27 +1,27 @@
 {
     "approved": [
-        "https://xcratch.699.jp/ext/?url=asondemita/xcx-map/dist/map.mjs",
+        "https://xcratch.699.jp/ext/?url=tfabworks/xcx-g2s/dist/g2s-m.mjs",
         "https://xcratch.699.jp/ext/?url=asondemita/xcx-ml/dist/xcx-ml.mjs",
         "https://xcratch.699.jp/ext/?url=asondemita/xcx-voice/dist/voice.mjs",
         "https://xcratch.699.jp/ext/?url=asondemita/xcx-weather/dist/weatherForecast.mjs",
-        "https://xcratch.699.jp/ext/?url=https://microbit-more.github.io/dist/microbitMore.mjs",
+        "https://xcratch.699.jp/ext/?url=asondemita/xcx-map/dist/map.mjs",
         "https://xcratch.699.jp/ext/?url=tfabworks/xcx-cameraselector/dist/cameraselector.mjs",
-        "https://xcratch.699.jp/ext/?url=tfabworks/xcx-g2s/dist/g2s-m.mjs",
         "https://xcratch.699.jp/ext/?url=tfabworks/xcx-screenshot/dist/screenshot.mjs",
+        "https://xcratch.699.jp/ext/?url=yokobond/xcx-mp-hand/dist/xcxMPHand.mjs",
+        "https://xcratch.699.jp/ext/?url=yokobond/xcx-qr/dist/xcxQR.mjs",
+        "https://xcratch.699.jp/ext/?url=yokobond/xcx-gai/dist/gai.mjs",
+        "https://xcratch.699.jp/ext/?url=microbit-more/dist/microbitMore.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-arduino/dist/xcxArduino.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-audio-analyser/dist/xcxAudioAnalyser.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-browser-channel/dist/xcxBrowserChannel.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-costumex/dist/costumex.mjs",
-        "https://xcratch.699.jp/ext/?url=yokobond/xcx-gai/dist/gai.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-gamepad/dist/webGamepad.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-http-request/dist/httpRequest.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-key-events/dist/keyEvents.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-mesh/dist/xcxMesh.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-mp-image-embed/dist/mpImageEmbed.mjs",
-        "https://xcratch.699.jp/ext/?url=yokobond/xcx-qr/dist/xcxQR.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-tf-knn/dist/tfknn-entry.mjs",
         "https://xcratch.699.jp/ext/?url=yokobond/xcx-vpen/dist/xcxVPen.mjs",
-        "https://xcratch.699.jp/ext/?url=yokobond/xcx-web-channel/dist/xcxWebChannel.mjs",
-        "https://xcratch.699.jp/ext/?url=yokobond/xcx-mp-hand/dist/xcxMPHand.mjs"
+        "https://xcratch.699.jp/ext/?url=yokobond/xcx-web-channel/dist/xcxWebChannel.mjs"
     ]
 }

@@ -199,19 +199,9 @@ const loadModules = async () => {
             })
         );
 
-        // Filter out failed loads
+        // Filter out failed loads.
+        // Keep the order of preload.json (= scripts/preload-rules.json) instead of sorting by name.
         preloadedExtensions = modules.filter(module => module && module.entry);
-
-        // Sort by name
-        preloadedExtensions.sort((a, b) => {
-            const nameA = a.entry.name.defaultMessage ?
-                a.entry.name.defaultMessage :
-                a.entry.name;
-            const nameB = b.entry.name.defaultMessage ?
-                b.entry.name.defaultMessage :
-                b.entry.name;
-            return nameA.localeCompare(nameB);
-        });
 
         // Register all preloaded extensions to the library
         preloadedExtensions.forEach(({entry, url}) => {
