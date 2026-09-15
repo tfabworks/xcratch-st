@@ -1,0 +1,16 @@
+@import "../../css/colors.css";
+
+/* xcratch-st: AkaDako connection indicator shown next to the stop button */
+.akadako-indicator {
+    width: 2rem;
+    height: 2rem;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    user-select: none;
+    user-drag: none;
+    cursor: pointer;
+}
+
+.akadako-indicator:hover {
+    background-color: $looks-light-transparent;
+}

@@ -216,6 +216,13 @@ const GUIComponent = props => {
                 {alertsVisible ? (
                     <Alerts className={styles.alertsContainer} />
                 ) : null}
+                {/* xcratch-st: let the AkaDako indicator open the connection modal in player mode too */}
+                {connectionModalVisible ? (
+                    <ConnectionModal
+                        useExternalPeripheralList={useExternalPeripheralList}
+                        vm={vm}
+                    />
+                ) : null}
             </StageWrapper>
         ) : (
             <Box

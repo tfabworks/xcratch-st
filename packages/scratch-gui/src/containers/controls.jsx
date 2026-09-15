@@ -40,6 +40,7 @@ class Controls extends React.Component {
         return (
             <ControlsComponent
                 {...props}
+                vm={vm}
                 active={projectRunning}
                 turbo={turbo}
                 onGreenFlagClick={this.handleGreenFlagClick}

@@ -6,6 +6,8 @@ import {defineMessages, useIntl} from 'react-intl';
 import GreenFlag from '../green-flag/green-flag.jsx';
 import StopAll from '../stop-all/stop-all.jsx';
 import TurboMode from '../turbo-mode/turbo-mode.jsx';
+import AkaDakoIndicator from '../../containers/akadako-indicator.jsx';
+import VM from '@scratch/scratch-vm';
 
 import styles from './controls.css';
 
@@ -29,6 +31,7 @@ const Controls = function (props) {
         onGreenFlagClick,
         onStopAllClick,
         turbo,
+        vm,
         ...componentProps
     } = props;
     const intl = useIntl();
@@ -47,6 +50,10 @@ const Controls = function (props) {
                 title={intl.formatMessage(messages.stopTitle)}
                 onClick={onStopAllClick}
             />
+            {/* xcratch-st: AkaDako connection indicator (shown only while the extension is loaded) */}
+            {vm ? (
+                <AkaDakoIndicator vm={vm} />
+            ) : null}
             {turbo ? (
                 <TurboMode />
             ) : null}
@@ -59,7 +66,8 @@ Controls.propTypes = {
     className: PropTypes.string,
     onGreenFlagClick: PropTypes.func.isRequired,
     onStopAllClick: PropTypes.func.isRequired,
-    turbo: PropTypes.bool
+    turbo: PropTypes.bool,
+    vm: PropTypes.instanceOf(VM)
 };
 
 Controls.defaultProps = {

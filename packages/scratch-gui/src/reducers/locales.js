@@ -9,6 +9,7 @@ import editValueInEditorTranslations from '../lib/edit-value-in-editor-translati
 import listEditorTranslations from '../lib/list-editor-translations.js';
 import reportBubbleCopyTranslations from '../lib/report-bubble-copy-translations.js';
 import localProjectTranslations from '../lib/local-project-translations.js';
+import akadakoIndicatorTranslations from '../lib/akadako-indicator-translations.js';
 
 Object.keys(missingTranslations).forEach(locale => {
     editorMessages[locale] = {
@@ -70,6 +71,13 @@ Object.keys(localProjectTranslations).forEach(locale => {
     editorMessages[locale] = {
         ...(editorMessages[locale] || {}),
         ...localProjectTranslations[locale]
+    };
+});
+
+Object.keys(akadakoIndicatorTranslations).forEach(locale => {
+    editorMessages[locale] = {
+        ...(editorMessages[locale] || {}),
+        ...akadakoIndicatorTranslations[locale]
     };
 });
 
