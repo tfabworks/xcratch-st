@@ -25,6 +25,7 @@ class ShareModal extends React.Component {
             'handleCancel',
             'handleChangeMode',
             'handleCopy',
+            'handleCopyQr',
             'handleExecute'
         ]);
         this.state = {
@@ -34,14 +35,17 @@ class ShareModal extends React.Component {
             qrDataUrl: null,
             expiresAt: null,
             error: null,
-            copied: false
+            copied: false,
+            qrCopyState: 'idle'
         };
         this.unmounted = false;
         this.copiedTimer = null;
+        this.qrCopiedTimer = null;
     }
     componentWillUnmount () {
         this.unmounted = true;
         clearTimeout(this.copiedTimer);
+        clearTimeout(this.qrCopiedTimer);
     }
     handleChangeMode (e) {
         this.setState({mode: e.target.value});
@@ -86,6 +90,38 @@ class ShareModal extends React.Component {
             this.copyFallback(url, done);
         }
     }
+    handleCopyQr () {
+        const {qrDataUrl} = this.state;
+        if (!qrDataUrl) return;
+        const show = qrCopyState => {
+            if (this.unmounted) return;
+            this.setState({qrCopyState});
+            clearTimeout(this.qrCopiedTimer);
+            this.qrCopiedTimer = setTimeout(() => {
+                if (!this.unmounted) this.setState({qrCopyState: 'idle'});
+            }, 2000);
+        };
+        // Decode the PNG data URL synchronously so the clipboard write stays inside the click gesture
+        let blob;
+        try {
+            const base64 = qrDataUrl.split(',')[1];
+            const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+            blob = new Blob([bytes], {type: 'image/png'});
+        } catch (e) {
+            log.warn('QR decode failed', e);
+            show('failed');
+            return;
+        }
+        if (!(navigator.clipboard && navigator.clipboard.write && typeof window.ClipboardItem === 'function')) {
+            show('failed');
+            return;
+        }
+        navigator.clipboard.write([new window.ClipboardItem({'image/png': blob})])
+            .then(() => show('copied'), e => {
+                log.warn('QR copy failed', e);
+                show('failed');
+            });
+    }
     copyFallback (text, done) {
         const textarea = document.createElement('textarea');
         textarea.value = text;
@@ -110,11 +146,13 @@ class ShareModal extends React.Component {
                 expiresAt={this.state.expiresAt}
                 mode={this.state.mode}
                 phase={this.state.phase}
+                qrCopyState={this.state.qrCopyState}
                 qrDataUrl={this.state.qrDataUrl}
                 url={this.state.url}
                 onCancel={this.handleCancel}
                 onChangeMode={this.handleChangeMode}
                 onCopy={this.handleCopy}
+                onCopyQr={this.handleCopyQr}
                 onExecute={this.handleExecute}
             />
         );

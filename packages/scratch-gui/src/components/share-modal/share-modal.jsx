@@ -42,8 +42,10 @@ const ShareModalComponent = props => {
         onCancel,
         onChangeMode,
         onCopy,
+        onCopyQr,
         onExecute,
         phase,
+        qrCopyState,
         qrDataUrl,
         url
     } = props;
@@ -174,11 +176,37 @@ const ShareModalComponent = props => {
                                 </Box>
                                 <Box className={styles.qrBox}>
                                     {qrDataUrl ? (
-                                        <img
-                                            alt={url}
-                                            className={styles.qrImage}
-                                            src={qrDataUrl}
-                                        />
+                                        <React.Fragment>
+                                            <img
+                                                alt={url}
+                                                className={styles.qrImage}
+                                                src={qrDataUrl}
+                                            />
+                                            <button
+                                                className={styles.copyButton}
+                                                onClick={onCopyQr}
+                                            >
+                                                {qrCopyState === 'copied' ? (
+                                                    <FormattedMessage
+                                                        defaultMessage="Copied"
+                                                        description="Copy button label after the URL was copied"
+                                                        id="xcratch-st.share.copied"
+                                                    />
+                                                ) : qrCopyState === 'failed' ? (
+                                                    <FormattedMessage
+                                                        defaultMessage="Cannot copy"
+                                                        description="Copy button label when copying failed"
+                                                        id="xcratch-st.share.copyFailed"
+                                                    />
+                                                ) : (
+                                                    <FormattedMessage
+                                                        defaultMessage="Copy"
+                                                        description="Button that copies the share URL to the clipboard"
+                                                        id="xcratch-st.share.copy"
+                                                    />
+                                                )}
+                                            </button>
+                                        </React.Fragment>
                                     ) : null}
                                     <span className={styles.validDays}>
                                         <FormattedMessage
@@ -255,10 +283,12 @@ ShareModalComponent.propTypes = {
     onCancel: PropTypes.func.isRequired,
     onChangeMode: PropTypes.func.isRequired,
     onCopy: PropTypes.func.isRequired,
+    onCopyQr: PropTypes.func.isRequired,
     onExecute: PropTypes.func.isRequired,
     phase: PropTypes.oneOf([
         SHARE_PHASE_CONFIRM, SHARE_PHASE_UPLOADING, SHARE_PHASE_DONE, SHARE_PHASE_ERROR
     ]).isRequired,
+    qrCopyState: PropTypes.oneOf(['idle', 'copied', 'failed']),
     qrDataUrl: PropTypes.string,
     url: PropTypes.string
 };
@@ -267,6 +297,7 @@ ShareModalComponent.defaultProps = {
     copied: false,
     error: null,
     expiresAt: null,
+    qrCopyState: 'idle',
     qrDataUrl: null,
     url: null
 };
