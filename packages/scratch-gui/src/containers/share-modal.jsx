@@ -42,6 +42,7 @@ class ShareModal extends React.Component {
         bindAll(this, [
             'handleCancel',
             'handleChangeMode',
+            'handleChangeTitle',
             'handleCopy',
             'handleCopyQr',
             'handleDeleteShare',
@@ -51,6 +52,7 @@ class ShareModal extends React.Component {
             // Sharing (and its AWS cost) is reserved for AkaDako users: require a connected board
             phase: getAkaDakoStatus(props.vm).connected ? SHARE_PHASE_CONFIRM : SHARE_PHASE_UNAVAILABLE,
             mode: SHARE_MODE_EDITOR,
+            title: props.projectTitle || '',
             url: null,
             qrDataUrl: null,
             expiresAt: null,
@@ -71,6 +73,9 @@ class ShareModal extends React.Component {
     handleChangeMode (e) {
         this.setState({mode: e.target.value});
     }
+    handleChangeTitle (e) {
+        this.setState({title: e.target.value});
+    }
     handleCancel () {
         if (this.state.phase === SHARE_PHASE_UPLOADING) return;
         this.props.onClose();
@@ -78,7 +83,7 @@ class ShareModal extends React.Component {
     async handleExecute () {
         this.setState({phase: SHARE_PHASE_UPLOADING, error: null});
         try {
-            const {url, expiresAt} = await shareProject(this.props.vm, this.state.mode);
+            const {url, expiresAt} = await shareProject(this.props.vm, this.state.mode, this.state.title);
             let qrDataUrl = null;
             try {
                 qrDataUrl = await QRCode.toDataURL(url, {width: 192, margin: 1, errorCorrectionLevel: 'M'});
@@ -182,9 +187,11 @@ class ShareModal extends React.Component {
                 phase={this.state.phase}
                 qrCopyState={this.state.qrCopyState}
                 qrDataUrl={this.state.qrDataUrl}
+                title={this.state.title}
                 url={this.state.url}
                 onCancel={this.handleCancel}
                 onChangeMode={this.handleChangeMode}
+                onChangeTitle={this.handleChangeTitle}
                 onCopy={this.handleCopy}
                 onCopyQr={this.handleCopyQr}
                 onDeleteShare={this.handleDeleteShare}
@@ -197,11 +204,16 @@ class ShareModal extends React.Component {
 ShareModal.propTypes = {
     intl: intlShape.isRequired,
     onClose: PropTypes.func.isRequired,
+    projectTitle: PropTypes.string,
     vm: PropTypes.instanceOf(VM).isRequired
 };
+
+const mapStateToProps = state => ({
+    projectTitle: state.scratchGui.projectTitle
+});
 
 const mapDispatchToProps = dispatch => ({
     onClose: () => dispatch(closeShareModal())
 });
 
-export default injectIntl(connect(null, mapDispatchToProps)(ShareModal));
+export default injectIntl(connect(mapStateToProps, mapDispatchToProps)(ShareModal));

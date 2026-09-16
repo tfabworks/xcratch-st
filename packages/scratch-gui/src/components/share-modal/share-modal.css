@@ -33,6 +33,43 @@
     cursor: pointer;
 }
 
+/* "Project name [input]            [Cancel] [Share now]" */
+.title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.title-label {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.title-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 1px solid $ui-black-transparent;
+    border-radius: 5px;
+    padding: 0.5rem 0.75rem;
+    font-size: .875rem;
+    font-family: inherit;
+    color: $text-primary;
+}
+
+.title-row .button-row {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.my-shares {
+    margin-bottom: 0;
+}
+
+.my-share-url {
+    font-weight: bold;
+}
+
 .status {
     font-weight: bold;
     margin-bottom: 1rem;

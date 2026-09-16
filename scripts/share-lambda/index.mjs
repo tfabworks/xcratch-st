@@ -13,6 +13,7 @@ const MAX_BYTES = 100 * 1024 * 1024;                 // 100 MB
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 const CONTENT_TYPE = 'application/x.scratch.sb3';
 const ID_PATTERN = /^[A-Za-z0-9_-]{16}$/;
+const META_MAX_BYTES = 4096;                          // sidecar JSON (project title etc.)
 
 const s3 = new S3Client({});
 const cloudfront = new CloudFrontClient({});
@@ -41,10 +42,25 @@ const presign = async () => {
         Fields: {'Content-Type': CONTENT_TYPE},
         Expires: 600
     });
+    // Sidecar JSON next to the .sb3 (project title etc.), same expiry, deleted together
+    const metaKey = `sb3/${id}.json`;
+    const meta = await createPresignedPost(s3, {
+        Bucket: BUCKET,
+        Key: metaKey,
+        Conditions: [
+            ['content-length-range', 1, META_MAX_BYTES],
+            ['eq', '$Content-Type', 'application/json']
+        ],
+        Fields: {'Content-Type': 'application/json'},
+        Expires: 600
+    });
     return json(200, {
         id,
         uploadUrl: url,
         fields,
+        metaUploadUrl: meta.url,
+        metaFields: meta.fields,
+        metaUrl: `${SHARE_HOST}/${metaKey}`,
         fileUrl: `${SHARE_HOST}/${key}`,
         editorUrl: `${SHARE_HOST}/e/${id}`,
         playerUrl: `${SHARE_HOST}/p/${id}`,
@@ -63,14 +79,14 @@ const remove = async ({id, token}) => {
     if (expected.length !== given.length || !timingSafeEqual(expected, given)) {
         return json(403, {error: 'invalid token'});
     }
-    const key = `sb3/${id}.sb3`;
-    await s3.send(new DeleteObjectCommand({Bucket: BUCKET, Key: key}));
-    // CloudFront may still hold a cached copy: drop it so the URL stops working right away
+    const keys = [`sb3/${id}.sb3`, `sb3/${id}.json`];
+    await Promise.all(keys.map(Key => s3.send(new DeleteObjectCommand({Bucket: BUCKET, Key}))));
+    // CloudFront may still hold cached copies: drop them so the URL stops working right away
     await cloudfront.send(new CreateInvalidationCommand({
         DistributionId: DISTRIBUTION_ID,
         InvalidationBatch: {
             CallerReference: `${id}-${Date.now()}`,
-            Paths: {Quantity: 1, Items: [`/${key}`]}
+            Paths: {Quantity: keys.length, Items: keys.map(key => `/${key}`)}
         }
     }));
     return json(200, {deleted: true, id});

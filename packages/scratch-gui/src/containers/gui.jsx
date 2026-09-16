@@ -8,7 +8,8 @@ import {injectIntl} from 'react-intl';
 import intlShape from '../lib/intlShape.js';
 
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
-import {isSharedProjectUrl, findMyShareByProjectId} from '../lib/xcratch-st-share';
+import {isSharedProjectUrl, findMyShareByProjectId, fetchSharedProjectTitle} from '../lib/xcratch-st-share';
+import {setProjectTitle} from '../reducers/project-title';
 import {showStandardAlert} from '../reducers/alerts';
 import shareTranslations from '../lib/xcratch-st-share-translations.js';
 import {
@@ -74,6 +75,13 @@ class GUI extends React.Component {
             // xcratch-st: opened a project shared from this browser -> offer to stop sharing
             if (findMyShareByProjectId(this.props.projectId)) {
                 this.props.onShowOwnShareAlert();
+            }
+            // xcratch-st: shared projects carry their title in a sidecar JSON
+            if (isSharedProjectUrl(this.props.projectId)) {
+                const sharedProjectId = this.props.projectId;
+                fetchSharedProjectTitle(sharedProjectId).then(title => {
+                    if (title && this.props.projectId === sharedProjectId) this.props.onSetProjectTitle(title);
+                });
             }
         }
         if (this.props.shouldStopProject && !prevProps.shouldStopProject) {
@@ -150,6 +158,7 @@ GUI.propTypes = {
     manuallySaveThumbnails: PropTypes.bool,
     onProjectLoaded: PropTypes.func,
     onShowOwnShareAlert: PropTypes.func,
+    onSetProjectTitle: PropTypes.func,
     onSeeCommunity: PropTypes.func,
     onStorageInit: PropTypes.func,
     onUpdateProjectId: PropTypes.func,
@@ -218,6 +227,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = dispatch => ({
     onShowOwnShareAlert: () => dispatch(showStandardAlert('xcratchStOwnShare')), // xcratch-st
+    onSetProjectTitle: title => dispatch(setProjectTitle(title)), // xcratch-st
     onExtensionButtonClick: () => dispatch(openExtensionLibrary()),
     onActivateTab: tab => dispatch(activateTab(tab)),
     onActivateCostumesTab: () => dispatch(activateTab(COSTUMES_TAB_INDEX)),

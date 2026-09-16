@@ -6,6 +6,7 @@
  * Objects expire after SHARE_EXPIRES_DAYS (S3 lifecycle rule).
  */
 import {getEffectiveBpa} from './xcratch-st-bpa';
+import log from './log.js';
 
 export const SHARE_PRESIGN_URL = 'https://7zwbsbbdghvisqk53gezhcmusq0kkjax.lambda-url.ap-northeast-1.on.aws/';
 export const SHARE_HOST = 'https://share.699.jp';
@@ -133,9 +134,10 @@ class ShareError extends Error {
  * Upload the current project and return its share URL.
  * @param {VM} vm - scratch-vm instance
  * @param {string} mode - SHARE_MODE_EDITOR or SHARE_MODE_PLAYER
+ * @param {string} title - project title stored next to the .sb3
  * @returns {Promise<{id: string, url: string, expiresAt: Date}>} share id, short URL and expiry
  */
-export const shareProject = async (vm, mode) => {
+export const shareProject = async (vm, mode, title) => {
     const blob = await vm.saveProjectSb3();
 
     let info;
@@ -176,6 +178,43 @@ export const shareProject = async (vm, mode) => {
     // The object is deleted by the S3 lifecycle rule no earlier than this
     const createdAt = Date.now();
     const expiresAt = createdAt + ((info.expiresDays || SHARE_EXPIRES_DAYS) * 24 * 60 * 60 * 1000);
-    rememberShare({id: info.id, url, mode, deleteToken: info.deleteToken, createdAt, expiresAt});
+    const cleanTitle = String(title || '')
+        .trim()
+        .slice(0, 200);
+
+    // Sidecar JSON with the project title (the .sb3 itself carries no title)
+    if (info.metaUploadUrl && info.metaFields) {
+        const metaForm = new FormData();
+        Object.keys(info.metaFields).forEach(key => metaForm.append(key, info.metaFields[key]));
+        const meta = JSON.stringify({title: cleanTitle, mode, createdAt, expiresAt});
+        metaForm.append('file', new Blob([meta], {type: 'application/json'}), `${info.id}.json`);
+        try {
+            const metaUpload = await fetch(info.metaUploadUrl, {method: 'POST', body: metaForm});
+            if (!metaUpload.ok) log.warn(`share meta upload ${metaUpload.status}`);
+        } catch (e) {
+            log.warn('share meta upload failed', e); // the share still works, only the title is lost
+        }
+    }
+
+    rememberShare({id: info.id, url, mode, title: cleanTitle, deleteToken: info.deleteToken, createdAt, expiresAt});
     return {id: info.id, url, expiresAt: new Date(expiresAt)};
+};
+
+/**
+ * Fetch the title stored next to a shared project (null when there is none).
+ * @param {string|number|null} projectId - redux project id (https://share.699.jp/sb3/<id>.sb3)
+ * @returns {Promise<string|null>} title
+ */
+export const fetchSharedProjectTitle = async projectId => {
+    const id = shareIdFromProjectId(projectId);
+    if (!id) return null;
+    try {
+        const res = await fetch(`${SHARE_HOST}/sb3/${id}.json`);
+        if (!res.ok) return null;
+        const meta = await res.json();
+        const title = typeof meta.title === 'string' ? meta.title.trim() : '';
+        return title || null;
+    } catch {
+        return null;
+    }
 };

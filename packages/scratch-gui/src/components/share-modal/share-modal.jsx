@@ -43,6 +43,7 @@ const ShareModalComponent = props => {
         myShares,
         onCancel,
         onChangeMode,
+        onChangeTitle,
         onCopy,
         onCopyQr,
         onDeleteShare,
@@ -50,6 +51,7 @@ const ShareModalComponent = props => {
         phase,
         qrCopyState,
         qrDataUrl,
+        title,
         url
     } = props;
     const busy = phase === SHARE_PHASE_UPLOADING;
@@ -92,8 +94,9 @@ const ShareModalComponent = props => {
                             href={share.url}
                             rel="noopener noreferrer"
                             target="_blank"
+                            title={share.url}
                         >
-                            {share.url}
+                            {share.title || share.url}
                         </a>
                         <span className={styles.myShareExpiry}>
                             <FormattedMessage
@@ -198,26 +201,46 @@ const ShareModalComponent = props => {
                                 />
                             </label>
                         </Box>
-                        {myShareList}
-                        <Box className={styles.buttonRow}>
-                            <button onClick={onCancel}>
-                                <FormattedMessage
-                                    defaultMessage="Cancel"
-                                    description="Button for cancelling the share dialog"
-                                    id="xcratch-st.share.cancel"
-                                />
-                            </button>
-                            <button
-                                className={styles.primaryButton}
-                                onClick={onExecute}
+                        <Box className={styles.titleRow}>
+                            <label
+                                className={styles.titleLabel}
+                                htmlFor="xcratch-st-share-title"
                             >
                                 <FormattedMessage
-                                    defaultMessage="Share now"
-                                    description="Button for starting the upload"
-                                    id="xcratch-st.share.execute"
+                                    defaultMessage="Project name"
+                                    description="Label of the project name field in the share dialog"
+                                    id="xcratch-st.share.projectName"
                                 />
-                            </button>
+                            </label>
+                            <input
+                                className={styles.titleInput}
+                                id="xcratch-st-share-title"
+                                maxLength={200}
+                                type="text"
+                                value={title}
+                                onChange={onChangeTitle}
+                            />
+                            <Box className={styles.buttonRow}>
+                                <button onClick={onCancel}>
+                                    <FormattedMessage
+                                        defaultMessage="Cancel"
+                                        description="Button for cancelling the share dialog"
+                                        id="xcratch-st.share.cancel"
+                                    />
+                                </button>
+                                <button
+                                    className={styles.primaryButton}
+                                    onClick={onExecute}
+                                >
+                                    <FormattedMessage
+                                        defaultMessage="Share now"
+                                        description="Button for starting the upload"
+                                        id="xcratch-st.share.execute"
+                                    />
+                                </button>
+                            </Box>
                         </Box>
+                        {myShareList}
                     </React.Fragment>
                 ) : (
                     <React.Fragment>
@@ -373,6 +396,7 @@ ShareModalComponent.propTypes = {
     })),
     onCancel: PropTypes.func.isRequired,
     onChangeMode: PropTypes.func.isRequired,
+    onChangeTitle: PropTypes.func.isRequired,
     onCopy: PropTypes.func.isRequired,
     onCopyQr: PropTypes.func.isRequired,
     onDeleteShare: PropTypes.func.isRequired,
@@ -382,6 +406,7 @@ ShareModalComponent.propTypes = {
     ]).isRequired,
     qrCopyState: PropTypes.oneOf(['idle', 'copied', 'failed']),
     qrDataUrl: PropTypes.string,
+    title: PropTypes.string,
     url: PropTypes.string
 };
 
@@ -392,6 +417,7 @@ ShareModalComponent.defaultProps = {
     myShares: [],
     qrCopyState: 'idle',
     qrDataUrl: null,
+    title: '',
     url: null
 };
 
