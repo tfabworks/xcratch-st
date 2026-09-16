@@ -3,6 +3,7 @@
 // Localized labels for the xcratch-st share dialogs.
 const shareTranslations = {
     'ja': {
+        'gui.menuBar.share': 'URLで共有', // override the Scratch menu-bar label (共有する)
         'xcratch-st.share.title': 'URLで共有',
         'xcratch-st.share.description': '共有を実行すると、現在のプログラムのコピーがクラウド上にアップロードされ、URLを知っている人は誰でもプログラムを実行する事ができるようになります。アップロードしたプログラムは1週間で削除されURLは無効になります。',
         'xcratch-st.share.modeLabel': 'モード',
@@ -32,6 +33,7 @@ const shareTranslations = {
         'xcratch-st.share.shareStopped': '共有をやめました。'
     },
     'ja-Hira': {
+        'gui.menuBar.share': 'URLで きょうゆう',
         'xcratch-st.share.title': 'URLで きょうゆう',
         'xcratch-st.share.description': 'きょうゆうを じっこうすると、いまの プログラムの コピーが クラウドに アップロードされ、URLを しっている ひとは だれでも プログラムを じっこうできるように なります。アップロードした プログラムは 1しゅうかんで けされ、URLは つかえなく なります。',
         'xcratch-st.share.modeLabel': 'モード',
