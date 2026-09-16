@@ -52,4 +52,6 @@ jobs:
                   publish_dir: ./packages/scratch-gui/build
                   # 独自ドメイン（Route 53 で CNAME → tfabworks.github.io を設定済み）。この行を消すとドメイン設定が解除されるので注意
                   cname: xcratch-st.699.jp
+                  # keep gh-pages as a single commit: the ~30 MB build per deploy was bloating the repo
+                  force_orphan: true
                   full_commit_message: "Build for ${{ github.sha }} ${{ github.event.head_commit.message }}"
