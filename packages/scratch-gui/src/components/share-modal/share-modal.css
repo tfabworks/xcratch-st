@@ -2,7 +2,9 @@
 @import "../../css/units.css";
 
 .modal-content {
-    width: 420px;
+    /* wide enough for the share URL (about 50 characters) plus the copy button on one line */
+    width: 620px;
+    max-width: 95vw;
 }
 
 .body {
@@ -55,8 +57,9 @@
 .url-link {
     flex: 1;
     min-width: 0;
-    overflow-wrap: anywhere;
-    word-break: break-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     color: $motion-primary;
     text-decoration: underline;
 }
@@ -77,6 +80,10 @@
 
 .valid-days {
     font-weight: bold;
+}
+
+.valid-until {
+    color: $text-primary-transparent;
 }
 
 .error-message {

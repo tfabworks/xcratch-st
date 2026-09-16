@@ -17,7 +17,7 @@ import styles from './share-modal.css';
 const messages = defineMessages({
     title: {
         id: 'xcratch-st.share.title',
-        defaultMessage: 'Share',
+        defaultMessage: 'Share by URL',
         description: 'Title of the share dialog'
     }
 });
@@ -36,6 +36,7 @@ const ShareModalComponent = props => {
     const {
         copied,
         error,
+        expiresAt,
         intl,
         mode,
         onCancel,
@@ -186,6 +187,24 @@ const ShareModalComponent = props => {
                                             id="xcratch-st.share.validDays"
                                         />
                                     </span>
+                                    {expiresAt ? (
+                                        <span className={styles.validUntil}>
+                                            <FormattedMessage
+                                                defaultMessage="Until {date}"
+                                                description="Exact local date and time the shared URL stays valid until"
+                                                id="xcratch-st.share.validUntil"
+                                                values={{
+                                                    date: intl.formatDate(expiresAt, {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })
+                                                }}
+                                            />
+                                        </span>
+                                    ) : null}
                                 </Box>
                             </React.Fragment>
                         ) : null}
@@ -230,6 +249,7 @@ const ShareModalComponent = props => {
 ShareModalComponent.propTypes = {
     copied: PropTypes.bool,
     error: PropTypes.string,
+    expiresAt: PropTypes.instanceOf(Date),
     intl: intlShape.isRequired,
     mode: PropTypes.oneOf([SHARE_MODE_EDITOR, SHARE_MODE_PLAYER]).isRequired,
     onCancel: PropTypes.func.isRequired,
@@ -246,6 +266,7 @@ ShareModalComponent.propTypes = {
 ShareModalComponent.defaultProps = {
     copied: false,
     error: null,
+    expiresAt: null,
     qrDataUrl: null,
     url: null
 };

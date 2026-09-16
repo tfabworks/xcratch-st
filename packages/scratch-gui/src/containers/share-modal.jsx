@@ -12,7 +12,7 @@ import ShareModalComponent, {
     SHARE_PHASE_ERROR
 } from '../components/share-modal/share-modal.jsx';
 import {closeShareModal} from '../reducers/modals';
-import {shareProject, SHARE_MODE_EDITOR} from '../lib/xcratch-st-share';
+import {shareProject, SHARE_MODE_EDITOR, SHARE_EXPIRES_DAYS} from '../lib/xcratch-st-share';
 import log from '../lib/log.js';
 
 /*
@@ -32,6 +32,7 @@ class ShareModal extends React.Component {
             mode: SHARE_MODE_EDITOR,
             url: null,
             qrDataUrl: null,
+            expiresAt: null,
             error: null,
             copied: false
         };
@@ -60,7 +61,9 @@ class ShareModal extends React.Component {
                 log.warn('QR code generation failed', qrError);
             }
             if (this.unmounted) return;
-            this.setState({phase: SHARE_PHASE_DONE, url, qrDataUrl});
+            // The object is deleted by the S3 lifecycle rule no earlier than this
+            const expiresAt = new Date(Date.now() + (SHARE_EXPIRES_DAYS * 24 * 60 * 60 * 1000));
+            this.setState({phase: SHARE_PHASE_DONE, url, qrDataUrl, expiresAt});
         } catch (error) {
             log.warn('Share failed', error);
             if (this.unmounted) return;
@@ -104,6 +107,7 @@ class ShareModal extends React.Component {
             <ShareModalComponent
                 copied={this.state.copied}
                 error={this.state.error}
+                expiresAt={this.state.expiresAt}
                 mode={this.state.mode}
                 phase={this.state.phase}
                 qrDataUrl={this.state.qrDataUrl}
