@@ -25,7 +25,7 @@ const alerts = [
         showStopSharing: true,
         content: (
             <FormattedMessage
-                defaultMessage="This URL was shared by you."
+                defaultMessage="This is a program you shared to the cloud."
                 description="Alert shown when opening a shared project that was shared from this browser"
                 id="xcratch-st.share.ownShareAlert"
             />

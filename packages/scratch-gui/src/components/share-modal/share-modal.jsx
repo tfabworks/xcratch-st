@@ -17,7 +17,7 @@ import styles from './share-modal.css';
 const messages = defineMessages({
     title: {
         id: 'xcratch-st.share.title',
-        defaultMessage: 'Share by URL',
+        defaultMessage: 'Cloud share',
         description: 'Title of the share dialog'
     }
 });
@@ -63,7 +63,7 @@ const ShareModalComponent = props => {
         <Box className={styles.myShares}>
             <div className={styles.myShareTitle}>
                 <FormattedMessage
-                    defaultMessage="URLs shared from this browser"
+                    defaultMessage="Programs shared to the cloud"
                     description="Heading of the list of shares made from this browser"
                     id="xcratch-st.share.myShares"
                 />
@@ -74,21 +74,6 @@ const ShareModalComponent = props => {
                         className={styles.myShareItem}
                         key={share.id}
                     >
-                        <span className={styles.myShareMode}>
-                            {share.mode === SHARE_MODE_PLAYER ? (
-                                <FormattedMessage
-                                    defaultMessage="Player"
-                                    description="Share mode: open the shared project in the player"
-                                    id="xcratch-st.share.modePlayer"
-                                />
-                            ) : (
-                                <FormattedMessage
-                                    defaultMessage="Editor"
-                                    description="Share mode: open the shared project in the editor"
-                                    id="xcratch-st.share.modeEditor"
-                                />
-                            )}
-                        </span>
                         <a
                             className={styles.myShareUrl}
                             href={share.url}
@@ -112,7 +97,7 @@ const ShareModalComponent = props => {
                             onClick={onDeleteShare}
                         >
                             <FormattedMessage
-                                defaultMessage="Delete"
+                                defaultMessage="Stop sharing"
                                 description="Button that deletes a shared project from the cloud"
                                 id="xcratch-st.share.delete"
                             />

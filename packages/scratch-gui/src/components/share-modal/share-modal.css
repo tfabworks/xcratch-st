@@ -196,14 +196,6 @@
     font-size: 0.8rem;
 }
 
-.my-share-mode {
-    flex: 0 0 auto;
-    padding: 0.1rem 0.4rem;
-    border-radius: 0.25rem;
-    background: $ui-black-transparent;
-    white-space: nowrap;
-}
-
 .my-share-url {
     flex: 1 1 auto;
     min-width: 0;
