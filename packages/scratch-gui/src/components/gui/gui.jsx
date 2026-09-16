@@ -22,6 +22,7 @@ import CostumeLibrary from '../../containers/costume-library.jsx';
 import BackdropLibrary from '../../containers/backdrop-library.jsx';
 import ProjectLibrary from '../../containers/project-library.jsx';
 import SaveVersionModal from '../../containers/save-version-modal.jsx';
+import ShareModal from '../../containers/share-modal.jsx'; // xcratch-st
 import Watermark from '../../containers/watermark.jsx';
 
 import Backpack from '../../containers/backpack.jsx';
@@ -134,6 +135,7 @@ const GUIComponent = props => {
         onTelemetryModalOptOut,
         onUpdateProjectThumbnail,
         saveVersionModalVisible,
+        shareModalVisible,
         showComingSoon,
         showNewFeatureCallouts,
         soundsTabVisible,
@@ -289,6 +291,9 @@ const GUIComponent = props => {
                         canSave={canSave}
                         onRequestClose={onRequestCloseProjectLibrary}
                     />
+                ) : null}
+                {shareModalVisible ? (
+                    <ShareModal vm={vm} />
                 ) : null}
                 {saveVersionModalVisible ? (
                     <SaveVersionModal />
@@ -582,6 +587,7 @@ GUIComponent.propTypes = {
     projectLibraryVisible: PropTypes.bool,
     renderLogin: PropTypes.func,
     saveVersionModalVisible: PropTypes.bool,
+    shareModalVisible: PropTypes.bool,
     setTheme: PropTypes.func.isRequired,
     showComingSoon: PropTypes.bool,
     showNewFeatureCallouts: PropTypes.bool,

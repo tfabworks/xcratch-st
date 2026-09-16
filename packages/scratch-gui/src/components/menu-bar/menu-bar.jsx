@@ -34,7 +34,8 @@ import {
     openTipsLibrary,
     openDebugModal,
     openProjectLibrary,
-    openSaveVersionModal
+    openSaveVersionModal,
+    openShareModal
 } from '../../reducers/modals';
 import {setPlayer} from '../../reducers/mode';
 import {
@@ -721,7 +722,13 @@ class MenuBar extends React.Component {
                                 </ProjectWatcher>
                             )
                         ) : (
-                            this.props.showComingSoon ? (
+                            // xcratch-st: cloud share (share.699.jp) instead of the Scratch community share
+                            this.props.onClickShare ? (
+                                <ShareButton
+                                    className={styles.menuBarButton}
+                                    onClick={this.props.onClickShare}
+                                />
+                            ) : this.props.showComingSoon ? (
                                 <MenuBarItemTooltip id="share-button">
                                     <ShareButton className={styles.menuBarButton} />
                                 </MenuBarItemTooltip>
@@ -1028,6 +1035,7 @@ MenuBar.propTypes = {
     onSeeCommunity: PropTypes.func,
     onSetTimeTravelMode: PropTypes.func,
     onShare: PropTypes.func,
+    onClickShare: PropTypes.func, // xcratch-st
     onStartSelectingFileUpload: PropTypes.func,
     // onToggleLoginOpen: PropTypes.func,
     platform: PropTypes.oneOf(Object.keys(PLATFORM)),
@@ -1130,6 +1138,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
     onClickNew: needSave => dispatch(requestNewProject(needSave)),
     onOpenProjectLibrary: () => dispatch(openProjectLibrary()),
     onOpenSaveVersionModal: () => dispatch(openSaveVersionModal()),
+    onClickShare: () => dispatch(openShareModal()), // xcratch-st
     onClickRemix: () => dispatch(remixProject()),
     onClickSave: () => dispatch(manualUpdateProject()),
     onClickSaveAsCopy: () => dispatch(saveProjectAsCopy()),

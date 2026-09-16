@@ -10,6 +10,7 @@ import listEditorTranslations from '../lib/list-editor-translations.js';
 import reportBubbleCopyTranslations from '../lib/report-bubble-copy-translations.js';
 import localProjectTranslations from '../lib/local-project-translations.js';
 import akadakoIndicatorTranslations from '../lib/akadako-indicator-translations.js';
+import shareTranslations from '../lib/xcratch-st-share-translations.js';
 
 Object.keys(missingTranslations).forEach(locale => {
     editorMessages[locale] = {
@@ -78,6 +79,13 @@ Object.keys(akadakoIndicatorTranslations).forEach(locale => {
     editorMessages[locale] = {
         ...(editorMessages[locale] || {}),
         ...akadakoIndicatorTranslations[locale]
+    };
+});
+
+Object.keys(shareTranslations).forEach(locale => {
+    editorMessages[locale] = {
+        ...(editorMessages[locale] || {}),
+        ...shareTranslations[locale]
     };
 });
 

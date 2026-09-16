@@ -14,6 +14,7 @@ const MODAL_CONNECTION = 'connectionModal';
 const MODAL_TIPS_LIBRARY = 'tipsLibrary';
 const MODAL_PROJECT_LIBRARY = 'projectLibrary';
 const MODAL_SAVE_VERSION = 'saveVersion';
+const MODAL_SHARE = 'xcratchStShare'; // xcratch-st
 
 const initialState = {
     [MODAL_BACKDROP_LIBRARY]: false,
@@ -28,7 +29,8 @@ const initialState = {
     [MODAL_CONNECTION]: false,
     [MODAL_TIPS_LIBRARY]: false,
     [MODAL_PROJECT_LIBRARY]: false,
-    [MODAL_SAVE_VERSION]: false
+    [MODAL_SAVE_VERSION]: false,
+    [MODAL_SHARE]: false
 };
 
 const reducer = function (state, action) {
@@ -97,6 +99,9 @@ const openProjectLibrary = function () {
 const openSaveVersionModal = function () {
     return openModal(MODAL_SAVE_VERSION);
 };
+const openShareModal = function () {
+    return openModal(MODAL_SHARE);
+};
 const closeBackdropLibrary = function () {
     return closeModal(MODAL_BACKDROP_LIBRARY);
 };
@@ -136,6 +141,9 @@ const closeProjectLibrary = function () {
 const closeSaveVersionModal = function () {
     return closeModal(MODAL_SAVE_VERSION);
 };
+const closeShareModal = function () {
+    return closeModal(MODAL_SHARE);
+};
 export {
     reducer as default,
     initialState as modalsInitialState,
@@ -152,6 +160,7 @@ export {
     openConnectionModal,
     openProjectLibrary,
     openSaveVersionModal,
+    openShareModal,
     closeBackdropLibrary,
     closeCostumeLibrary,
     closeDebugModal,
@@ -164,5 +173,6 @@ export {
     closeTipsLibrary,
     closeConnectionModal,
     closeProjectLibrary,
-    closeSaveVersionModal
+    closeSaveVersionModal,
+    closeShareModal
 };

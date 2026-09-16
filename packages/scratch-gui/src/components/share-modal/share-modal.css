@@ -1,0 +1,123 @@
+@import "../../css/colors.css";
+@import "../../css/units.css";
+
+.modal-content {
+    width: 420px;
+}
+
+.body {
+    background: $ui-white;
+    padding: 1.5rem 2.25rem;
+    font-size: .875rem;
+    color: $text-primary;
+}
+
+.description {
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.mode-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.mode-row label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+}
+
+.status {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.status-uploading {
+    color: $text-primary-transparent;
+}
+
+.status-done {
+    color: $pen-primary;
+}
+
+.url-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.url-link {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+    color: $motion-primary;
+    text-decoration: underline;
+}
+
+.qr-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.qr-image {
+    width: 192px;
+    height: 192px;
+    image-rendering: pixelated;
+}
+
+.valid-days {
+    font-weight: bold;
+}
+
+.error-message {
+    color: $error-primary;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.button-row {
+    font-weight: bolder;
+    text-align: right;
+}
+
+.button-row button,
+.copy-button {
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    background: white;
+    border: 1px solid $ui-black-transparent;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.button-row button.primary-button {
+    background: $looks-secondary;
+    border: $looks-secondary;
+    color: white;
+}
+
+.button-row button:disabled,
+.copy-button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+[dir="ltr"] .button-row button + button {
+    margin-left: 0.5rem;
+}
+
+[dir="rtl"] .button-row button + button {
+    margin-right: 0.5rem;
+}

@@ -8,6 +8,8 @@ import {injectIntl} from 'react-intl';
 import intlShape from '../lib/intlShape.js';
 
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
+import {isSharedProjectUrl} from '../lib/xcratch-st-share';
+import shareTranslations from '../lib/xcratch-st-share-translations.js';
 import {
     getIsError,
     getIsShowingProject
@@ -74,6 +76,20 @@ class GUI extends React.Component {
         }
     }
     render () {
+        if (this.props.isError && isSharedProjectUrl(this.props.projectId)) {
+            // xcratch-st: an expired (deleted) shared project. Tell the user and
+            // go back to the editor instead of showing the crash page.
+            if (!this.sharedProjectExpiredHandled) {
+                this.sharedProjectExpiredHandled = true;
+                const locale = this.props.locale || '';
+                const messagesForLocale = shareTranslations[locale] || shareTranslations[locale.split('-')[0]];
+                const message = (messagesForLocale && messagesForLocale['xcratch-st.share.expired']) ||
+                    'This shared URL has expired (7 days) or does not exist.';
+                window.alert(message); // eslint-disable-line no-alert
+                window.location.replace(window.location.pathname);
+            }
+            return null;
+        }
         if (this.props.isError) {
             throw new Error(
                 `Error in Scratch GUI [location=${window.location}]: ${this.props.error}`);
@@ -121,6 +137,7 @@ GUI.propTypes = {
     fetchingProject: PropTypes.bool,
     intl: intlShape,
     isError: PropTypes.bool,
+    locale: PropTypes.string,
     isLoading: PropTypes.bool,
     isShowingProject: PropTypes.bool,
     isTotallyNormal: PropTypes.bool,
@@ -178,8 +195,10 @@ const mapStateToProps = (state, ownProps) => {
         loadingStateVisible: state.scratchGui.modals.loadingProject,
         platform: ownProps.platform,
         projectId: state.scratchGui.projectState.projectId,
+        locale: state.locales.locale,
         projectLibraryVisible: state.scratchGui.modals.projectLibrary,
         saveVersionModalVisible: state.scratchGui.modals.saveVersion,
+        shareModalVisible: state.scratchGui.modals.xcratchStShare,
         soundsTabVisible: state.scratchGui.editorTab.activeTabIndex === SOUNDS_TAB_INDEX,
         targetIsStage: (
             state.scratchGui.targets.stage &&
