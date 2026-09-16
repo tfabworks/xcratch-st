@@ -50,12 +50,14 @@
 .url-row {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     margin-bottom: 1rem;
 }
 
 .url-link {
-    flex: 1;
+    /* shrink (with ellipsis) when the row is narrow, but never grow: keeps the copy button right next to the URL */
+    flex: 0 1 auto;
     min-width: 0;
     white-space: nowrap;
     overflow: hidden;
