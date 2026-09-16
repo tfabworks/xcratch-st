@@ -95,7 +95,7 @@ echo "test: $(aws cloudfront test-function --name "$FUNC_NAME" --if-match "$(aws
 
 echo "== 4) Distribution"
 DIST=$(aws cloudfront list-distributions \
-    --query "DistributionList.Items[?contains(Aliases.Items, '$SHARE_DOMAIN')].Id | [0]" --output text)
+    --query "DistributionList.Items[?Aliases.Quantity > \`0\` && contains(Aliases.Items, '$SHARE_DOMAIN')].Id | [0]" --output text)
 if [ -z "$DIST" ] || [ "$DIST" = "None" ]; then
     cat > "$WORK/dist.json" <<EOF
 {
@@ -119,7 +119,7 @@ if [ -z "$DIST" ] || [ "$DIST" = "None" ]; then
     "ResponseHeadersPolicyId": "$RHP",
     "FunctionAssociations": {"Quantity": 1, "Items": [{"FunctionARN": "$FARN", "EventType": "viewer-request"}]}
   },
-  "CustomErrorResponses": {"Quantity": 1, "Items": [{"ErrorCode": 403, "ResponseCode": "404", "ResponsePagePath": "", "ErrorCachingMinTTL": 10}]},
+  "CustomErrorResponses": {"Quantity": 1, "Items": [{"ErrorCode": 403, "ErrorCachingMinTTL": 10}]},
   "ViewerCertificate": {"ACMCertificateArn": "$CERT_ARN", "SSLSupportMethod": "sni-only", "MinimumProtocolVersion": "TLSv1.2_2021"}
 }
 EOF
