@@ -8,3 +8,8 @@
     background: $ui-black-transparent;
     cursor: default;
 }
+
+/* xcratch-st: sharing is only available while an AkaDako board is connected */
+.share-button-inactive {
+    background: $ui-black-transparent;
+}

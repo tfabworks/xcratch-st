@@ -9,8 +9,10 @@ import ShareModalComponent, {
     SHARE_PHASE_CONFIRM,
     SHARE_PHASE_UPLOADING,
     SHARE_PHASE_DONE,
-    SHARE_PHASE_ERROR
+    SHARE_PHASE_ERROR,
+    SHARE_PHASE_UNAVAILABLE
 } from '../components/share-modal/share-modal.jsx';
+import {getAkaDakoStatus} from '../lib/xcratch-st-akadako-status';
 import {closeShareModal} from '../reducers/modals';
 import {shareProject, SHARE_MODE_EDITOR, SHARE_EXPIRES_DAYS} from '../lib/xcratch-st-share';
 import log from '../lib/log.js';
@@ -29,7 +31,8 @@ class ShareModal extends React.Component {
             'handleExecute'
         ]);
         this.state = {
-            phase: SHARE_PHASE_CONFIRM,
+            // Sharing (and its AWS cost) is reserved for AkaDako users: require a connected board
+            phase: getAkaDakoStatus(props.vm).connected ? SHARE_PHASE_CONFIRM : SHARE_PHASE_UNAVAILABLE,
             mode: SHARE_MODE_EDITOR,
             url: null,
             qrDataUrl: null,

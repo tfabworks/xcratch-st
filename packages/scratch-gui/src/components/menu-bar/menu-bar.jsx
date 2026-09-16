@@ -14,6 +14,7 @@ import Box from '../box/box.jsx';
 import Button from '../button/button.jsx';
 import CommunityButton from './community-button.jsx';
 import ShareButton from './share-button.jsx';
+import XcratchShareButton from '../../containers/share-button.jsx'; // xcratch-st
 import {ComingSoonTooltip} from '../coming-soon/coming-soon.jsx';
 import Divider from '../divider/divider.jsx';
 import SaveStatus from './save-status.jsx';
@@ -724,8 +725,9 @@ class MenuBar extends React.Component {
                         ) : (
                             // xcratch-st: cloud share (share.699.jp) instead of the Scratch community share
                             this.props.onClickShare ? (
-                                <ShareButton
+                                <XcratchShareButton
                                     className={styles.menuBarButton}
+                                    vm={this.props.vm}
                                     onClick={this.props.onClickShare}
                                 />
                             ) : this.props.showComingSoon ? (

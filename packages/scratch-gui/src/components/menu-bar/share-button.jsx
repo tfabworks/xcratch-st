@@ -8,6 +8,7 @@ import styles from './share-button.css';
 
 const ShareButton = ({
     className,
+    inactive,
     isShared,
     onClick
 }) => (
@@ -15,7 +16,10 @@ const ShareButton = ({
         className={classNames(
             className,
             styles.shareButton,
-            {[styles.shareButtonIsShared]: isShared}
+            {
+                [styles.shareButtonIsShared]: isShared,
+                [styles.shareButtonInactive]: inactive // xcratch-st: grey until AkaDako is connected
+            }
         )}
         onClick={onClick}
     >
@@ -37,6 +41,7 @@ const ShareButton = ({
 
 ShareButton.propTypes = {
     className: PropTypes.string,
+    inactive: PropTypes.bool, // xcratch-st
     isShared: PropTypes.bool,
     onClick: PropTypes.func
 };

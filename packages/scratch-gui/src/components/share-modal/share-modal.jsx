@@ -26,6 +26,7 @@ export const SHARE_PHASE_CONFIRM = 'confirm';
 export const SHARE_PHASE_UPLOADING = 'uploading';
 export const SHARE_PHASE_DONE = 'done';
 export const SHARE_PHASE_ERROR = 'error';
+export const SHARE_PHASE_UNAVAILABLE = 'unavailable';
 
 /*
  * xcratch-st: share dialog.
@@ -58,7 +59,29 @@ const ShareModalComponent = props => {
             onRequestClose={busy ? null : onCancel}
         >
             <Box className={styles.body}>
-                {phase === SHARE_PHASE_CONFIRM ? (
+                {phase === SHARE_PHASE_UNAVAILABLE ? (
+                    <React.Fragment>
+                        <Box className={styles.description}>
+                            <FormattedMessage
+                                defaultMessage="Sharing is available only while an AkaDako board is connected."
+                                description="Shown when the share button is used without a connected AkaDako"
+                                id="xcratch-st.share.unavailable"
+                            />
+                        </Box>
+                        <Box className={styles.buttonRow}>
+                            <button
+                                className={styles.primaryButton}
+                                onClick={onCancel}
+                            >
+                                <FormattedMessage
+                                    defaultMessage="Close"
+                                    description="Button that closes the share dialog"
+                                    id="xcratch-st.share.close"
+                                />
+                            </button>
+                        </Box>
+                    </React.Fragment>
+                ) : phase === SHARE_PHASE_CONFIRM ? (
                     <React.Fragment>
                         <Box className={styles.description}>
                             <FormattedMessage
@@ -286,7 +309,7 @@ ShareModalComponent.propTypes = {
     onCopyQr: PropTypes.func.isRequired,
     onExecute: PropTypes.func.isRequired,
     phase: PropTypes.oneOf([
-        SHARE_PHASE_CONFIRM, SHARE_PHASE_UPLOADING, SHARE_PHASE_DONE, SHARE_PHASE_ERROR
+        SHARE_PHASE_CONFIRM, SHARE_PHASE_UPLOADING, SHARE_PHASE_DONE, SHARE_PHASE_ERROR, SHARE_PHASE_UNAVAILABLE
     ]).isRequired,
     qrCopyState: PropTypes.oneOf(['idle', 'copied', 'failed']),
     qrDataUrl: PropTypes.string,

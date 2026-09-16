@@ -20,7 +20,8 @@ const shareTranslations = {
         'xcratch-st.share.close': '閉じる',
         'xcratch-st.share.errorTooLarge': 'プログラムのサイズが上限（100MB）を超えているため共有できません。',
         'xcratch-st.share.errorNetwork': 'アップロードに失敗しました。ネットワーク接続を確認してもう一度お試しください。',
-        'xcratch-st.share.expired': 'この共有URLは有効期限（7日間）が過ぎているか、存在しません。'
+        'xcratch-st.share.expired': 'この共有URLは有効期限（7日間）が過ぎているか、存在しません。',
+        'xcratch-st.share.unavailable': 'AkaDako接続中のみ利用出来ます'
     },
     'ja-Hira': {
         'xcratch-st.share.title': 'URLで きょうゆう',
@@ -40,7 +41,8 @@ const shareTranslations = {
         'xcratch-st.share.close': 'とじる',
         'xcratch-st.share.errorTooLarge': 'プログラムの サイズが じょうげん（100MB）を こえているため きょうゆうできません。',
         'xcratch-st.share.errorNetwork': 'アップロードに しっぱいしました。ネットワークを かくにんして もういちど ためしてください。',
-        'xcratch-st.share.expired': 'この きょうゆうURLは ゆうこうきげん（7にちかん）が すぎているか、そんざいしません。'
+        'xcratch-st.share.expired': 'この きょうゆうURLは ゆうこうきげん（7にちかん）が すぎているか、そんざいしません。',
+        'xcratch-st.share.unavailable': 'AkaDako せつぞくちゅうのみ りようできます'
     }
 };
 
