@@ -21,7 +21,14 @@ const shareTranslations = {
         'xcratch-st.share.errorTooLarge': 'プログラムのサイズが上限（100MB）を超えているため共有できません。',
         'xcratch-st.share.errorNetwork': 'アップロードに失敗しました。ネットワーク接続を確認してもう一度お試しください。',
         'xcratch-st.share.expired': 'この共有URLは有効期限（7日間）が過ぎているか、存在しません。',
-        'xcratch-st.share.unavailable': 'AkaDako接続中のみ利用出来ます'
+        'xcratch-st.share.unavailable': 'AkaDako接続中のみ利用出来ます',
+        'xcratch-st.share.myShares': 'このブラウザで共有したURL',
+        'xcratch-st.share.delete': '削除',
+        'xcratch-st.share.confirmDelete': '共有をやめると、このURLは開けなくなります。よろしいですか？',
+        'xcratch-st.share.deleteFailed': '削除に失敗しました。ネットワーク接続を確認してもう一度お試しください。',
+        'xcratch-st.share.ownShareAlert': 'このURLはあなたが共有したものです。',
+        'xcratch-st.share.stopSharing': '共有をやめる',
+        'xcratch-st.share.shareStopped': '共有をやめました。'
     },
     'ja-Hira': {
         'xcratch-st.share.title': 'URLで きょうゆう',
@@ -42,7 +49,14 @@ const shareTranslations = {
         'xcratch-st.share.errorTooLarge': 'プログラムの サイズが じょうげん（100MB）を こえているため きょうゆうできません。',
         'xcratch-st.share.errorNetwork': 'アップロードに しっぱいしました。ネットワークを かくにんして もういちど ためしてください。',
         'xcratch-st.share.expired': 'この きょうゆうURLは ゆうこうきげん（7にちかん）が すぎているか、そんざいしません。',
-        'xcratch-st.share.unavailable': 'AkaDako せつぞくちゅうのみ りようできます'
+        'xcratch-st.share.unavailable': 'AkaDako せつぞくちゅうのみ りようできます',
+        'xcratch-st.share.myShares': 'この ブラウザで きょうゆうした URL',
+        'xcratch-st.share.delete': 'さくじょ',
+        'xcratch-st.share.confirmDelete': 'きょうゆうを やめると、この URLは ひらけなく なります。よろしいですか？',
+        'xcratch-st.share.deleteFailed': 'さくじょに しっぱいしました。ネットワークを かくにんして もういちど ためしてください。',
+        'xcratch-st.share.ownShareAlert': 'この URLは あなたが きょうゆうしたものです。',
+        'xcratch-st.share.stopSharing': 'きょうゆうを やめる',
+        'xcratch-st.share.shareStopped': 'きょうゆうを やめました。'
     }
 };
 

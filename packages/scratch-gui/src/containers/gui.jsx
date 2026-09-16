@@ -8,7 +8,8 @@ import {injectIntl} from 'react-intl';
 import intlShape from '../lib/intlShape.js';
 
 import ErrorBoundaryHOC from '../lib/error-boundary-hoc.jsx';
-import {isSharedProjectUrl} from '../lib/xcratch-st-share';
+import {isSharedProjectUrl, findMyShareByProjectId} from '../lib/xcratch-st-share';
+import {showStandardAlert} from '../reducers/alerts';
 import shareTranslations from '../lib/xcratch-st-share-translations.js';
 import {
     getIsError,
@@ -70,6 +71,10 @@ class GUI extends React.Component {
             // this only notifies container when a project changes from not yet loaded to loaded
             // At this time the project view in www doesn't need to know when a project is unloaded
             this.props.onProjectLoaded();
+            // xcratch-st: opened a project shared from this browser -> offer to stop sharing
+            if (findMyShareByProjectId(this.props.projectId)) {
+                this.props.onShowOwnShareAlert();
+            }
         }
         if (this.props.shouldStopProject && !prevProps.shouldStopProject) {
             this.props.vm.stopAll();
@@ -144,6 +149,7 @@ GUI.propTypes = {
     loadingStateVisible: PropTypes.bool,
     manuallySaveThumbnails: PropTypes.bool,
     onProjectLoaded: PropTypes.func,
+    onShowOwnShareAlert: PropTypes.func,
     onSeeCommunity: PropTypes.func,
     onStorageInit: PropTypes.func,
     onUpdateProjectId: PropTypes.func,
@@ -211,6 +217,7 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 const mapDispatchToProps = dispatch => ({
+    onShowOwnShareAlert: () => dispatch(showStandardAlert('xcratchStOwnShare')), // xcratch-st
     onExtensionButtonClick: () => dispatch(openExtensionLibrary()),
     onActivateTab: tab => dispatch(activateTab(tab)),
     onActivateCostumesTab: () => dispatch(activateTab(COSTUMES_TAB_INDEX)),

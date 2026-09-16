@@ -28,7 +28,9 @@ const AlertComponent = ({
     onDownload,
     onSaveNow,
     onReconnect,
-    showReconnect
+    showReconnect,
+    onStopSharing,
+    showStopSharing
 }) => (
     <Box
         className={classNames(styles.alert, styles[level])}
@@ -101,6 +103,18 @@ const AlertComponent = ({
                     />
                 </button>
             )}
+            {showStopSharing && (
+                <button
+                    className={styles.alertConnectionButton}
+                    onClick={onStopSharing}
+                >
+                    <FormattedMessage
+                        defaultMessage="Stop sharing"
+                        description="Button that deletes the shared project from the cloud"
+                        id="xcratch-st.share.stopSharing"
+                    />
+                </button>
+            )}
             {closeButton && (
                 <Box
                     className={styles.alertCloseButtonContainer}
@@ -118,6 +132,8 @@ const AlertComponent = ({
 );
 
 AlertComponent.propTypes = {
+    onStopSharing: PropTypes.func, // xcratch-st
+    showStopSharing: PropTypes.bool, // xcratch-st
     closeButton: PropTypes.bool,
     content: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
     extensionName: PropTypes.string,

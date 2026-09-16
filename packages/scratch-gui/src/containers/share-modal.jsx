@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import VM from '@scratch/scratch-vm';
 import {connect} from 'react-redux';
+import {defineMessages, injectIntl} from 'react-intl';
 import QRCode from 'qrcode';
+
+import intlShape from '../lib/intlShape.js';
 
 import ShareModalComponent, {
     SHARE_PHASE_CONFIRM,
@@ -14,7 +17,20 @@ import ShareModalComponent, {
 } from '../components/share-modal/share-modal.jsx';
 import {getAkaDakoStatus} from '../lib/xcratch-st-akadako-status';
 import {closeShareModal} from '../reducers/modals';
-import {shareProject, SHARE_MODE_EDITOR, SHARE_EXPIRES_DAYS} from '../lib/xcratch-st-share';
+import {shareProject, deleteShare, listMyShares, SHARE_MODE_EDITOR} from '../lib/xcratch-st-share';
+
+const messages = defineMessages({
+    confirmDelete: {
+        id: 'xcratch-st.share.confirmDelete',
+        defaultMessage: 'If you stop sharing, this URL will no longer open. Continue?',
+        description: 'Confirmation before deleting a shared project from the cloud'
+    },
+    deleteFailed: {
+        id: 'xcratch-st.share.deleteFailed',
+        defaultMessage: 'Delete failed. Check your network connection and try again.',
+        description: 'Error shown when deleting a shared project failed'
+    }
+});
 import log from '../lib/log.js';
 
 /*
@@ -28,6 +44,7 @@ class ShareModal extends React.Component {
             'handleChangeMode',
             'handleCopy',
             'handleCopyQr',
+            'handleDeleteShare',
             'handleExecute'
         ]);
         this.state = {
@@ -39,7 +56,8 @@ class ShareModal extends React.Component {
             expiresAt: null,
             error: null,
             copied: false,
-            qrCopyState: 'idle'
+            qrCopyState: 'idle',
+            myShares: listMyShares()
         };
         this.unmounted = false;
         this.copiedTimer = null;
@@ -60,7 +78,7 @@ class ShareModal extends React.Component {
     async handleExecute () {
         this.setState({phase: SHARE_PHASE_UPLOADING, error: null});
         try {
-            const {url} = await shareProject(this.props.vm, this.state.mode);
+            const {url, expiresAt} = await shareProject(this.props.vm, this.state.mode);
             let qrDataUrl = null;
             try {
                 qrDataUrl = await QRCode.toDataURL(url, {width: 192, margin: 1, errorCorrectionLevel: 'M'});
@@ -68,9 +86,7 @@ class ShareModal extends React.Component {
                 log.warn('QR code generation failed', qrError);
             }
             if (this.unmounted) return;
-            // The object is deleted by the S3 lifecycle rule no earlier than this
-            const expiresAt = new Date(Date.now() + (SHARE_EXPIRES_DAYS * 24 * 60 * 60 * 1000));
-            this.setState({phase: SHARE_PHASE_DONE, url, qrDataUrl, expiresAt});
+            this.setState({phase: SHARE_PHASE_DONE, url, qrDataUrl, expiresAt, myShares: listMyShares()});
         } catch (error) {
             log.warn('Share failed', error);
             if (this.unmounted) return;
@@ -92,6 +108,20 @@ class ShareModal extends React.Component {
         } else {
             this.copyFallback(url, done);
         }
+    }
+    handleDeleteShare (e) {
+        const id = e.currentTarget.dataset.id;
+        // eslint-disable-next-line no-alert
+        if (!window.confirm(this.props.intl.formatMessage(messages.confirmDelete))) return;
+        deleteShare(id).then(
+            () => {
+                if (!this.unmounted) this.setState({myShares: listMyShares()});
+            },
+            () => {
+                // eslint-disable-next-line no-alert
+                window.alert(this.props.intl.formatMessage(messages.deleteFailed));
+            }
+        );
     }
     handleCopyQr () {
         const {qrDataUrl} = this.state;
@@ -148,6 +178,7 @@ class ShareModal extends React.Component {
                 error={this.state.error}
                 expiresAt={this.state.expiresAt}
                 mode={this.state.mode}
+                myShares={this.state.myShares}
                 phase={this.state.phase}
                 qrCopyState={this.state.qrCopyState}
                 qrDataUrl={this.state.qrDataUrl}
@@ -156,6 +187,7 @@ class ShareModal extends React.Component {
                 onChangeMode={this.handleChangeMode}
                 onCopy={this.handleCopy}
                 onCopyQr={this.handleCopyQr}
+                onDeleteShare={this.handleDeleteShare}
                 onExecute={this.handleExecute}
             />
         );
@@ -163,6 +195,7 @@ class ShareModal extends React.Component {
 }
 
 ShareModal.propTypes = {
+    intl: intlShape.isRequired,
     onClose: PropTypes.func.isRequired,
     vm: PropTypes.instanceOf(VM).isRequired
 };
@@ -171,4 +204,4 @@ const mapDispatchToProps = dispatch => ({
     onClose: () => dispatch(closeShareModal())
 });
 
-export default connect(null, mapDispatchToProps)(ShareModal);
+export default injectIntl(connect(null, mapDispatchToProps)(ShareModal));

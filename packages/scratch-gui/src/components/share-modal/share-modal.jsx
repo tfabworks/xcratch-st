@@ -40,10 +40,12 @@ const ShareModalComponent = props => {
         expiresAt,
         intl,
         mode,
+        myShares,
         onCancel,
         onChangeMode,
         onCopy,
         onCopyQr,
+        onDeleteShare,
         onExecute,
         phase,
         qrCopyState,
@@ -51,6 +53,72 @@ const ShareModalComponent = props => {
         url
     } = props;
     const busy = phase === SHARE_PHASE_UPLOADING;
+    const formatExpiry = date => intl.formatDate(date, {
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    // Shares made from this browser, with a delete button each
+    const myShareList = myShares && myShares.length > 0 ? (
+        <Box className={styles.myShares}>
+            <div className={styles.myShareTitle}>
+                <FormattedMessage
+                    defaultMessage="URLs shared from this browser"
+                    description="Heading of the list of shares made from this browser"
+                    id="xcratch-st.share.myShares"
+                />
+            </div>
+            <ul className={styles.myShareList}>
+                {myShares.map(share => (
+                    <li
+                        className={styles.myShareItem}
+                        key={share.id}
+                    >
+                        <span className={styles.myShareMode}>
+                            {share.mode === SHARE_MODE_PLAYER ? (
+                                <FormattedMessage
+                                    defaultMessage="Player"
+                                    description="Share mode: open the shared project in the player"
+                                    id="xcratch-st.share.modePlayer"
+                                />
+                            ) : (
+                                <FormattedMessage
+                                    defaultMessage="Editor"
+                                    description="Share mode: open the shared project in the editor"
+                                    id="xcratch-st.share.modeEditor"
+                                />
+                            )}
+                        </span>
+                        <a
+                            className={styles.myShareUrl}
+                            href={share.url}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                        >
+                            {share.url}
+                        </a>
+                        <span className={styles.myShareExpiry}>
+                            <FormattedMessage
+                                defaultMessage="Until {date}"
+                                description="Exact local date and time the shared URL stays valid until"
+                                id="xcratch-st.share.validUntil"
+                                values={{date: formatExpiry(new Date(share.expiresAt))}}
+                            />
+                        </span>
+                        <button
+                            className={styles.copyButton}
+                            data-id={share.id}
+                            onClick={onDeleteShare}
+                        >
+                            <FormattedMessage
+                                defaultMessage="Delete"
+                                description="Button that deletes a shared project from the cloud"
+                                id="xcratch-st.share.delete"
+                            />
+                        </button>
+                    </li>
+                ))}
+            </ul>
+        </Box>
+    ) : null;
     return (
         <Modal
             className={styles.modalContent}
@@ -68,6 +136,7 @@ const ShareModalComponent = props => {
                                 id="xcratch-st.share.unavailable"
                             />
                         </Box>
+                        {myShareList}
                         <Box className={styles.buttonRow}>
                             <button
                                 className={styles.primaryButton}
@@ -129,6 +198,7 @@ const ShareModalComponent = props => {
                                 />
                             </label>
                         </Box>
+                        {myShareList}
                         <Box className={styles.buttonRow}>
                             <button onClick={onCancel}>
                                 <FormattedMessage
@@ -244,15 +314,7 @@ const ShareModalComponent = props => {
                                                 defaultMessage="Until {date}"
                                                 description="Exact local date and time the shared URL stays valid until"
                                                 id="xcratch-st.share.validUntil"
-                                                values={{
-                                                    date: intl.formatDate(expiresAt, {
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })
-                                                }}
+                                                values={{date: formatExpiry(expiresAt)}}
                                             />
                                         </span>
                                     ) : null}
@@ -303,10 +365,17 @@ ShareModalComponent.propTypes = {
     expiresAt: PropTypes.instanceOf(Date),
     intl: intlShape.isRequired,
     mode: PropTypes.oneOf([SHARE_MODE_EDITOR, SHARE_MODE_PLAYER]).isRequired,
+    myShares: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string,
+        url: PropTypes.string,
+        mode: PropTypes.string,
+        expiresAt: PropTypes.number
+    })),
     onCancel: PropTypes.func.isRequired,
     onChangeMode: PropTypes.func.isRequired,
     onCopy: PropTypes.func.isRequired,
     onCopyQr: PropTypes.func.isRequired,
+    onDeleteShare: PropTypes.func.isRequired,
     onExecute: PropTypes.func.isRequired,
     phase: PropTypes.oneOf([
         SHARE_PHASE_CONFIRM, SHARE_PHASE_UPLOADING, SHARE_PHASE_DONE, SHARE_PHASE_ERROR, SHARE_PHASE_UNAVAILABLE
@@ -320,6 +389,7 @@ ShareModalComponent.defaultProps = {
     copied: false,
     error: null,
     expiresAt: null,
+    myShares: [],
     qrCopyState: 'idle',
     qrDataUrl: null,
     url: null

@@ -39,6 +39,89 @@ const buildShortUrl = base => {
     return url.toString();
 };
 
+const MY_SHARES_KEY = 'xcratch-st:shares';
+
+/**
+ * Shares made from this browser (newest first), expired ones dropped.
+ * @returns {Array<object>} shares ({id, url, mode, deleteToken, createdAt, expiresAt})
+ */
+export const listMyShares = () => {
+    let shares = [];
+    try {
+        shares = JSON.parse(localStorage.getItem(MY_SHARES_KEY) || '[]');
+    } catch {
+        shares = [];
+    }
+    if (!Array.isArray(shares)) shares = [];
+    const now = Date.now();
+    const alive = shares.filter(share => share && share.id && share.expiresAt > now);
+    if (alive.length !== shares.length) saveMyShares(alive);
+    return alive.sort((a, b) => b.createdAt - a.createdAt);
+};
+
+const saveMyShares = shares => {
+    try {
+        localStorage.setItem(MY_SHARES_KEY, JSON.stringify(shares));
+    } catch {
+        // localStorage unavailable: the share still works, it just cannot be deleted later
+    }
+};
+
+const rememberShare = share => saveMyShares([share, ...listMyShares().filter(s => s.id !== share.id)]);
+
+const forgetShare = id => saveMyShares(listMyShares().filter(s => s.id !== id));
+
+/**
+ * The share id of a shared-project URL (redux project id), or null.
+ * @param {string|number|null} projectId - redux project id
+ * @returns {string|null} share id
+ */
+export const shareIdFromProjectId = projectId => {
+    if (!isSharedProjectUrl(projectId)) return null;
+    const match = projectId.match(/\/sb3\/([A-Za-z0-9_-]+)\.sb3$/);
+    return match ? match[1] : null;
+};
+
+/**
+ * The share made from this browser that the current project was opened from, or null.
+ * @param {string|number|null} projectId - redux project id
+ * @returns {object|null} share record
+ */
+export const findMyShareByProjectId = projectId => {
+    const id = shareIdFromProjectId(projectId);
+    if (!id) return null;
+    return listMyShares().find(share => share.id === id) || null;
+};
+
+/**
+ * Stop sharing: delete the object (only possible from the browser that uploaded it).
+ * @param {string} id - share id
+ * @returns {Promise<void>} resolves when deleted (or already gone)
+ */
+export const deleteShare = async id => {
+    const share = listMyShares().find(s => s.id === id);
+    if (!share) return;
+    let res;
+    try {
+        res = await fetch(SHARE_PRESIGN_URL, {
+            method: 'POST',
+            headers: {'content-type': 'application/json'},
+            body: JSON.stringify({action: 'delete', id, token: share.deleteToken})
+        });
+    } catch (e) {
+        throw new ShareError(SHARE_ERROR_NETWORK, e.message);
+    }
+    // 403/404: token no longer valid or object already expired - forget it either way
+    if (!res.ok && res.status !== 403 && res.status !== 404) {
+        throw new ShareError(SHARE_ERROR_NETWORK, `delete ${res.status}`);
+    }
+    forgetShare(id);
+    // If the deleted share is the one in the URL, drop the hash so a reload does not hit the dead URL
+    if (window.location.hash.includes(`/sb3/${id}.sb3`)) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+};
+
 class ShareError extends Error {
     constructor (code, message) {
         super(message || code);
@@ -50,7 +133,7 @@ class ShareError extends Error {
  * Upload the current project and return its share URL.
  * @param {VM} vm - scratch-vm instance
  * @param {string} mode - SHARE_MODE_EDITOR or SHARE_MODE_PLAYER
- * @returns {Promise<{id: string, url: string}>} share id and short URL
+ * @returns {Promise<{id: string, url: string, expiresAt: Date}>} share id, short URL and expiry
  */
 export const shareProject = async (vm, mode) => {
     const blob = await vm.saveProjectSb3();
@@ -89,5 +172,10 @@ export const shareProject = async (vm, mode) => {
     }
 
     const base = mode === SHARE_MODE_PLAYER ? info.playerUrl : info.editorUrl;
-    return {id: info.id, url: buildShortUrl(base)};
+    const url = buildShortUrl(base);
+    // The object is deleted by the S3 lifecycle rule no earlier than this
+    const createdAt = Date.now();
+    const expiresAt = createdAt + ((info.expiresDays || SHARE_EXPIRES_DAYS) * 24 * 60 * 60 * 1000);
+    rememberShare({id: info.id, url, mode, deleteToken: info.deleteToken, createdAt, expiresAt});
+    return {id: info.id, url, expiresAt: new Date(expiresAt)};
 };

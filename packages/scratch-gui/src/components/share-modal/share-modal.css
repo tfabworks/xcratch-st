@@ -130,3 +130,60 @@
 [dir="rtl"] .button-row button + button {
     margin-right: 0.5rem;
 }
+
+/* list of shares made from this browser */
+.my-shares {
+    border-top: 1px solid $ui-black-transparent;
+    padding-top: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.my-share-title {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.my-share-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 9rem;
+    overflow-y: auto;
+}
+
+.my-share-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    font-size: 0.8rem;
+}
+
+.my-share-mode {
+    flex: 0 0 auto;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.25rem;
+    background: $ui-black-transparent;
+    white-space: nowrap;
+}
+
+.my-share-url {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: $motion-primary;
+    text-decoration: underline;
+}
+
+.my-share-expiry {
+    flex: 0 0 auto;
+    color: $text-primary-transparent;
+    white-space: nowrap;
+}
+
+.my-share-item .copy-button {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+}

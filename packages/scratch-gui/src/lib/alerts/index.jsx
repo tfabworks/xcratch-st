@@ -18,6 +18,36 @@ const AlertLevels = {
 
 const alerts = [
     {
+        // xcratch-st: the open project was shared from this browser
+        alertId: 'xcratchStOwnShare',
+        clearList: ['xcratchStOwnShare', 'xcratchStShareStopped'],
+        closeButton: true,
+        showStopSharing: true,
+        content: (
+            <FormattedMessage
+                defaultMessage="This URL was shared by you."
+                description="Alert shown when opening a shared project that was shared from this browser"
+                id="xcratch-st.share.ownShareAlert"
+            />
+        ),
+        level: AlertLevels.WARN
+    },
+    {
+        // xcratch-st: sharing was stopped (object deleted)
+        alertId: 'xcratchStShareStopped',
+        clearList: ['xcratchStOwnShare', 'xcratchStShareStopped'],
+        content: (
+            <FormattedMessage
+                defaultMessage="Sharing stopped."
+                description="Alert shown after a shared project was deleted from the cloud"
+                id="xcratch-st.share.shareStopped"
+            />
+        ),
+        iconURL: successImage,
+        level: AlertLevels.SUCCESS,
+        maxDisplaySecs: 3
+    },
+    {
         alertId: 'createSuccess',
         alertType: AlertTypes.STANDARD,
         clearList: ['createSuccess', 'creating', 'createCopySuccess', 'creatingCopy',
