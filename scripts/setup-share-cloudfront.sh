@@ -45,38 +45,8 @@ fi
 echo "RHP=$RHP"
 
 echo "== 3) CloudFront Function: /e/<id>, /p/<id> -> editor / player (keeps ?bpa= and ?ss=)"
-cat > "$WORK/redirect.js" <<'EOF'
-// xcratch-st share: short URL -> editor/player URL. The id is the S3 object name (sb3/<id>.sb3).
-function handler(event) {
-    var request = event.request;
-    var m = request.uri.match(/^\/(e|p)\/([A-Za-z0-9_-]{8,64})\/?$/);
-    if (!m) {
-        return request;
-    }
-    var mode = m[1];
-    var id = m[2];
-    var qs = request.querystring;
-    var params = [];
-    var keep = ['bpa', 'ss'];
-    for (var i = 0; i < keep.length; i++) {
-        var k = keep[i];
-        if (qs[k] && typeof qs[k].value === 'string' && /^[A-Za-z0-9_-]{0,16}$/.test(qs[k].value)) {
-            params.push(k + '=' + qs[k].value);
-        }
-    }
-    var target = 'https://xcratch-st.699.jp/' + (mode === 'p' ? 'player.html' : '') +
-        (params.length ? '?' + params.join('&') : '') +
-        '#https://share.699.jp/sb3/' + id + '.sb3';
-    return {
-        statusCode: 302,
-        statusDescription: 'Found',
-        headers: {
-            location: {value: target},
-            'cache-control': {value: 'no-store'}
-        }
-    };
-}
-EOF
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cp "$SCRIPT_DIR/share-cloudfront-redirect.js" "$WORK/redirect.js"
 if aws cloudfront describe-function --name "$FUNC_NAME" >/dev/null 2>&1; then
     ETAG=$(aws cloudfront describe-function --name "$FUNC_NAME" --query ETag --output text)
     ETAG=$(aws cloudfront update-function --name "$FUNC_NAME" \
@@ -90,8 +60,11 @@ fi
 FARN=$(aws cloudfront publish-function --name "$FUNC_NAME" --if-match "$ETAG" \
     --query FunctionSummary.FunctionMetadata.FunctionARN --output text)
 echo "FARN=$FARN"
-printf '{"version":"1.0","context":{"eventType":"viewer-request"},"viewer":{"ip":"1.1.1.1"},"request":{"method":"GET","uri":"/e/AbCdEfGhIjKlMnOp","querystring":{"bpa":{"value":"0"}},"headers":{},"cookies":{}}}' > "$WORK/ev.json"
-echo "test: $(aws cloudfront test-function --name "$FUNC_NAME" --if-match "$(aws cloudfront describe-function --name "$FUNC_NAME" --query ETag --output text)" --stage LIVE --event-object "fileb://$WORK/ev.json" --query 'TestResult.FunctionOutput' --output text | head -c 300)"
+LIVE_ETAG=$(aws cloudfront describe-function --name "$FUNC_NAME" --query ETag --output text)
+printf '{"version":"1.0","context":{"eventType":"viewer-request"},"viewer":{"ip":"1.1.1.1"},"request":{"method":"GET","uri":"/e/AbCdEfGhIjKlMnOp","querystring":{"bpa":{"value":"0"}},"headers":{"user-agent":{"value":"Mozilla/5.0 (Windows NT 10.0) Chrome/120"}},"cookies":{}}}' > "$WORK/ev.json"
+echo "test (PC -> 302): $(aws cloudfront test-function --name "$FUNC_NAME" --if-match "$LIVE_ETAG" --stage LIVE --event-object "fileb://$WORK/ev.json" --query 'TestResult.FunctionOutput' --output text | head -c 300)"
+printf '{"version":"1.0","context":{"eventType":"viewer-request"},"viewer":{"ip":"1.1.1.1"},"request":{"method":"GET","uri":"/e/AbCdEfGhIjKlMnOp","querystring":{"bpa":{"value":"0"}},"headers":{"user-agent":{"value":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"}},"cookies":{}}}' > "$WORK/ev-ipad.json"
+echo "test (iPad -> 302 too; the Scrub prompt is in the editor): $(aws cloudfront test-function --name "$FUNC_NAME" --if-match "$LIVE_ETAG" --stage LIVE --event-object "fileb://$WORK/ev-ipad.json" --query 'TestResult.FunctionOutput' --output text | head -c 300)"
 
 echo "== 4) Distribution"
 DIST=$(aws cloudfront list-distributions \

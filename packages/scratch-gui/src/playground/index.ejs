@@ -77,6 +77,60 @@
     </script>
   </head>
   <body>
+    <!-- xcratch-st: on an iPad that is not the Scrub app, suggest opening this page in Scrub.
+         Safari on iPad has no Web Bluetooth, so AkaDako and other devices only work in Scrub.
+         Runs before the bundle (injected at the end of body) and only draws an overlay; the
+         editor keeps loading behind it. Skipped for Scrub, the home-screen PWA and browsers
+         where the user chose "don't show again". Add ?scrubprompt=1 to force it for testing. -->
+    <style>
+      #xcratch-st-scrub{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+      #xcratch-st-scrub .box{background:#fff;color:#333;border-radius:16px;padding:28px 24px;max-width:480px;width:calc(100% - 32px);box-sizing:border-box;text-align:center;line-height:1.7;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+      #xcratch-st-scrub h2{font-size:20px;margin:0 0 8px}
+      #xcratch-st-scrub p{margin:0 0 12px;font-size:15px}
+      #xcratch-st-scrub .btn{display:block;padding:14px 20px;margin:16px 0 12px;border-radius:12px;background:#ff8c1a;color:#fff;font-size:18px;font-weight:bold;text-decoration:none}
+      #xcratch-st-scrub .lnk{display:block;padding:10px;color:#0b7bd0;font-size:15px;text-decoration:underline;background:none;border:0;width:100%;cursor:pointer;font-family:inherit}
+      #xcratch-st-scrub label{display:block;font-size:13px;color:#666;margin-top:4px}
+      #xcratch-st-scrub .store{font-size:13px;margin-top:12px}
+      #xcratch-st-scrub .store a{color:#0b7bd0}
+    </style>
+    <script>
+      (function () {
+        var SKIP_KEY = 'xcratch-st:skipScrubPrompt';
+        var ua = navigator.userAgent;
+        var isIpad = /iPad/i.test(ua) || (/Macintosh/i.test(ua) && 'ontouchend' in document);
+        var isScrub = /Scrub/.test(ua);
+        var isPwa = navigator.standalone === true;
+        var forced = /[?&]scrubprompt=1(&|$)/.test(location.search);
+        var skipped = false;
+        try { skipped = localStorage.getItem(SKIP_KEY) === '1'; } catch (e) { /* noop */ }
+        if (isScrub || (!forced && (!isIpad || isPwa || skipped))) return;
+
+        // Only a shared project URL (#https://...) is meaningful to another browser;
+        // a local project id (#<id>) lives in this browser's IndexedDB, so drop it.
+        var hash = /^#https?:\/\//.test(location.hash) ? location.hash : '';
+        var target = location.origin + location.pathname + location.search.replace(/[?&]scrubprompt=1/, '').replace(/^&/, '?') + hash;
+
+        var root = document.createElement('div');
+        root.id = 'xcratch-st-scrub';
+        root.innerHTML =
+          '<div class="box">' +
+            '<h2>iPadでは「Scrub」で開くことをおすすめします</h2>' +
+            '<p>AkaDakoなどのBluetooth機器を使うには、Scratch専用ブラウザ「Scrub」が必要です。</p>' +
+            '<a class="btn" id="xcratch-st-scrub-open">「Scrub」で開く</a>' +
+            '<button type="button" class="lnk" id="xcratch-st-scrub-continue">このブラウザでそのまま使う</button>' +
+            '<label><input type="checkbox" id="xcratch-st-scrub-skip"> 今後このブラウザでは表示しない</label>' +
+            '<p class="store"><a href="https://apps.apple.com/jp/app/scrub/id1569777095" target="_blank" rel="noopener">Scrubをインストール（App Store）</a></p>' +
+          '</div>';
+        document.body.appendChild(root);
+        root.querySelector('#xcratch-st-scrub-open').href = 'scrub://openUrl?' + encodeURI(target);
+        root.querySelector('#xcratch-st-scrub-continue').addEventListener('click', function () {
+          if (root.querySelector('#xcratch-st-scrub-skip').checked) {
+            try { localStorage.setItem(SKIP_KEY, '1'); } catch (e) { /* noop */ }
+          }
+          root.parentNode.removeChild(root);
+        });
+      })();
+    </script>
     <% if (htmlWebpackPlugin.options.gtm_id) { %>
       <!-- Google Tag Manager (noscript) -->
       <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<%- htmlWebpackPlugin.options.gtm_id %><%= htmlWebpackPlugin.options.gtm_env_auth %>" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
