@@ -3,8 +3,8 @@
 // Localized labels for the xcratch-st share dialogs.
 const shareTranslations = {
     'ja': {
-        'gui.menuBar.share': 'クラウド共有', // override the Scratch menu-bar label (共有する)
-        'xcratch-st.share.title': 'クラウド共有',
+        'gui.menuBar.share': 'クラウド共有(β)', // override the Scratch menu-bar label (共有する)
+        'xcratch-st.share.title': 'クラウド共有(β)',
         'xcratch-st.share.description': '共有を実行すると、現在のプログラムのコピーがクラウド上にアップロードされ、URLを知っている人は誰でもプログラムを実行する事ができるようになります。アップロードしたプログラムは1週間で削除されURLは無効になります。',
         'xcratch-st.share.modeLabel': 'モード',
         'xcratch-st.share.projectName': 'プロジェクト名',
