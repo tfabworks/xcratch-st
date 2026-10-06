@@ -77,6 +77,18 @@
     </script>
   </head>
   <body>
+    <!-- xcratch-st: Scrub only installs its Scratch Link socket (Bluetooth) when this marker
+         element exists at document end. The VM creates it, but here the VM is constructed
+         during React's asynchronous first render, which is too late, so create it up front.
+         Scrub only: elsewhere the VM must create it itself so that it also notifies the
+         Scratch Link browser extension. -->
+    <script>
+      if (/Scrub/.test(navigator.userAgent) && !document.getElementById('scratch-link-extension-script')) {
+        var scratchLinkMarker = document.createElement('script');
+        scratchLinkMarker.id = 'scratch-link-extension-script';
+        document.body.appendChild(scratchLinkMarker);
+      }
+    </script>
     <!-- xcratch-st: on an iPad that is not the Scrub app, suggest opening this page in Scrub.
          Safari on iPad has no Web Bluetooth, so AkaDako and other devices only work in Scrub.
          Runs before the bundle (injected at the end of body) and only draws an overlay; the
