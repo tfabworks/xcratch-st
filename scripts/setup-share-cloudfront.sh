@@ -16,6 +16,7 @@ CERT_ARN=arn:aws:acm:us-east-1:904527142774:certificate/19fb5b74-9d00-4017-8129-
 HOSTED_ZONE_ID=Z0845714Q5S6VFEEDHNT   # 699.jp
 CF_HOSTED_ZONE_ID=Z2FDTNDATAQYW2       # fixed id for CloudFront aliases
 SHARE_DOMAIN=share.699.jp
+MAIN_DIST=EANHMK3G5XXI4             # xcratch.699.jp (serves the same bucket at /share/)
 FUNC_NAME=xcratch-share-redirect
 WORK="$(mktemp -d)"
 
@@ -36,7 +37,7 @@ if [ -z "$RHP" ] || [ "$RHP" = "None" ]; then
     RHP=$(aws cloudfront create-response-headers-policy --response-headers-policy-config '{
         "Name":"xcratch-share-cors","Comment":"CORS for xcratch-st shared projects",
         "CorsConfig":{
-            "AccessControlAllowOrigins":{"Quantity":4,"Items":["https://xcratch-st.699.jp","http://127.0.0.1:8000","http://localhost:8601","http://localhost:8000"]},
+            "AccessControlAllowOrigins":{"Quantity":5,"Items":["https://xcratch.699.jp","https://xcratch-st.699.jp","http://127.0.0.1:8000","http://localhost:8601","http://localhost:8000"]},
             "AccessControlAllowHeaders":{"Quantity":1,"Items":["*"]},
             "AccessControlAllowMethods":{"Quantity":3,"Items":["GET","HEAD","OPTIONS"]},
             "AccessControlAllowCredentials":false,"AccessControlMaxAgeSec":3600,"OriginOverride":true}}' \
@@ -103,8 +104,9 @@ DOMAIN=$(aws cloudfront get-distribution --id "$DIST" --query Distribution.Domai
 DARN=$(aws cloudfront get-distribution --id "$DIST" --query Distribution.ARN --output text)
 echo "DIST=$DIST DOMAIN=$DOMAIN"
 
-echo "== 5) Bucket policy: let this distribution read sb3/*"
-aws s3api put-bucket-policy --bucket "$BUCKET" --policy "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"AllowCloudFrontRead\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudfront.amazonaws.com\"},\"Action\":\"s3:GetObject\",\"Resource\":\"arn:aws:s3:::$BUCKET/sb3/*\",\"Condition\":{\"StringEquals\":{\"AWS:SourceArn\":\"$DARN\"}}}]}"
+echo "== 5) Bucket policy: let this distribution (and xcratch.699.jp/share, see setup-share-path.sh) read sb3/*"
+MAIN_DARN=$(aws cloudfront get-distribution --id "$MAIN_DIST" --query Distribution.ARN --output text)
+aws s3api put-bucket-policy --bucket "$BUCKET" --policy "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Sid\":\"AllowCloudFrontRead\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudfront.amazonaws.com\"},\"Action\":\"s3:GetObject\",\"Resource\":\"arn:aws:s3:::$BUCKET/sb3/*\",\"Condition\":{\"StringEquals\":{\"AWS:SourceArn\":[\"$DARN\",\"$MAIN_DARN\"]}}}]}"
 
 echo "== 6) Route 53: $SHARE_DOMAIN -> $DOMAIN"
 aws route53 change-resource-record-sets --hosted-zone-id "$HOSTED_ZONE_ID" --change-batch "{\"Changes\":[

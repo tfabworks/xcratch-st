@@ -1,15 +1,27 @@
 /*
- * xcratch-st: share the current project via https://share.699.jp
+ * xcratch-st: share the current project via https://xcratch.699.jp/share
  *
  * Flow: ask the presign Lambda for a one-time S3 POST policy, upload the .sb3
- * straight to S3 with it, then build the short URL (/e/<id> or /p/<id>).
+ * to S3 with it, then build the short URL (/e/<id> or /p/<id>).
  * Objects expire after SHARE_EXPIRES_DAYS (S3 lifecycle rule).
+ *
+ * School web filters allow xcratch.699.jp but block share.699.jp (and the
+ * Lambda / S3 hosts), so when the editor runs on xcratch.699.jp every request
+ * goes through that host (scripts/setup-share-path.sh). Short URLs always use
+ * it, whichever host the editor runs on.
  */
 import {getEffectiveBpa} from './xcratch-st-bpa';
 import log from './log.js';
 
-export const SHARE_PRESIGN_URL = 'https://7zwbsbbdghvisqk53gezhcmusq0kkjax.lambda-url.ap-northeast-1.on.aws/';
-export const SHARE_HOST = 'https://share.699.jp';
+export const SHARE_HOST = 'https://xcratch.699.jp/share';
+// Shares made before the move to xcratch.699.jp/share (same bucket, still served)
+const LEGACY_SHARE_HOST = 'https://share.699.jp';
+const LAMBDA_PRESIGN_URL = 'https://7zwbsbbdghvisqk53gezhcmusq0kkjax.lambda-url.ap-northeast-1.on.aws/';
+// Same host as the editor: presign and upload through it too. Elsewhere
+// (xcratch-st.699.jp, localhost) talk to the Lambda and S3 directly.
+const SAME_HOST = typeof window !== 'undefined' && window.location.origin === new URL(SHARE_HOST).origin;
+export const SHARE_PRESIGN_URL = SAME_HOST ? `${SHARE_HOST}/api` : LAMBDA_PRESIGN_URL;
+const uploadUrlFor = presignedUrl => (SAME_HOST ? `${SHARE_HOST}/up` : presignedUrl);
 export const SHARE_EXPIRES_DAYS = 7;
 
 export const SHARE_MODE_EDITOR = 'editor';
@@ -22,14 +34,15 @@ export const SHARE_ERROR_NETWORK = 'network';
 /**
  * Whether a project id (URL hash value) points at a shared project.
  * @param {string|number|null} projectId - redux project id
- * @returns {boolean} true for https://share.699.jp/sb3/... URLs
+ * @returns {boolean} true for https://xcratch.699.jp/share/sb3/... (or legacy https://share.699.jp/sb3/...) URLs
  */
 export const isSharedProjectUrl = projectId =>
-    typeof projectId === 'string' && projectId.startsWith(`${SHARE_HOST}/sb3/`);
+    typeof projectId === 'string' &&
+    [SHARE_HOST, LEGACY_SHARE_HOST].some(host => projectId.startsWith(`${host}/sb3/`));
 
 /**
  * Build the short URL, carrying the palette/stage state of the moment of sharing.
- * @param {string} base - https://share.699.jp/e/<id> or /p/<id>
+ * @param {string} base - https://xcratch.699.jp/share/e/<id> or /p/<id>
  * @returns {string} short URL with ?bpa= (and ?ss= when present)
  */
 const buildShortUrl = base => {
@@ -162,7 +175,7 @@ export const shareProject = async (vm, mode, title) => {
     form.append('file', blob, `${info.id}.sb3`);
     let upload;
     try {
-        upload = await fetch(info.uploadUrl, {method: 'POST', body: form});
+        upload = await fetch(uploadUrlFor(info.uploadUrl), {method: 'POST', body: form});
     } catch (e) {
         throw new ShareError(SHARE_ERROR_NETWORK, e.message);
     }
@@ -173,7 +186,7 @@ export const shareProject = async (vm, mode, title) => {
         throw new ShareError(SHARE_ERROR_NETWORK, `upload ${upload.status}`);
     }
 
-    const base = mode === SHARE_MODE_PLAYER ? info.playerUrl : info.editorUrl;
+    const base = `${SHARE_HOST}/${mode === SHARE_MODE_PLAYER ? 'p' : 'e'}/${info.id}`;
     const url = buildShortUrl(base);
     // The object is deleted by the S3 lifecycle rule no earlier than this
     const createdAt = Date.now();
@@ -189,7 +202,7 @@ export const shareProject = async (vm, mode, title) => {
         const meta = JSON.stringify({title: cleanTitle, mode, createdAt, expiresAt});
         metaForm.append('file', new Blob([meta], {type: 'application/json'}), `${info.id}.json`);
         try {
-            const metaUpload = await fetch(info.metaUploadUrl, {method: 'POST', body: metaForm});
+            const metaUpload = await fetch(uploadUrlFor(info.metaUploadUrl), {method: 'POST', body: metaForm});
             if (!metaUpload.ok) log.warn(`share meta upload ${metaUpload.status}`);
         } catch (e) {
             log.warn('share meta upload failed', e); // the share still works, only the title is lost
@@ -202,14 +215,15 @@ export const shareProject = async (vm, mode, title) => {
 
 /**
  * Fetch the title stored next to a shared project (null when there is none).
- * @param {string|number|null} projectId - redux project id (https://share.699.jp/sb3/<id>.sb3)
+ * @param {string|number|null} projectId - redux project id (https://xcratch.699.jp/share/sb3/<id>.sb3)
  * @returns {Promise<string|null>} title
  */
 export const fetchSharedProjectTitle = async projectId => {
     const id = shareIdFromProjectId(projectId);
     if (!id) return null;
     try {
-        const res = await fetch(`${SHARE_HOST}/sb3/${id}.json`);
+        // Next to the .sb3, on whichever host the project was opened from
+        const res = await fetch(projectId.replace(/\.sb3$/, '.json'));
         if (!res.ok) return null;
         const meta = await res.json();
         const title = typeof meta.title === 'string' ? meta.title.trim() : '';
