@@ -14,7 +14,8 @@ concurrency:
 
 jobs:
     build-deploy:
-        runs-on: ubuntu-latest
+        # ubuntu-latest became 26.04, where the pinned Playwright cannot install chromium (npm ci fails)
+        runs-on: ubuntu-24.04
         env:
             NODE_OPTIONS: --max-old-space-size=4000
         steps:
