@@ -5,7 +5,8 @@
 [tfabworks/xcratch-build](https://github.com/tfabworks/xcratch-build) の `1.patch` 相当の変更を適用したものです。
 
 公開 URL:
-- https://xcratch-st.699.jp/
+- https://xcratch.699.jp/st/ （CloudFront 経由。設定は `scripts/setup-st-path.sh`）
+- https://xcratch-st.699.jp/ （GitHub Pages。上記の配信元）
 - https://tfabworks.github.io/xcratch-st/ （上記へリダイレクト）
 
 ## 本家からの変更点
@@ -24,7 +25,7 @@
 （保存時点の URL の値をそのまま写すので、`bpa` 無しで保存すれば消えます）。
 書き出した .sb3 ファイルには含まれません。
 
-例: `https://xcratch-st.699.jp/?bpa=2#https://699.jp/d/xcratch/xxxx.sb3`
+例: `https://xcratch.699.jp/st/?bpa=2#https://699.jp/d/xcratch/xxxx.sb3`
 
 変更ファイル（すべて `packages/scratch-gui/` 配下）:
 - `src/lib/xcratch-st-bpa.ts` — `bpa` の読み書きヘルパー

@@ -1,7 +1,7 @@
 // xcratch-st share: CloudFront Function (viewer-request) for https://share.699.jp
 //
-//   /e/<id>[?bpa=..&ss=..]  ->  https://xcratch-st.699.jp/?bpa=..#https://share.699.jp/sb3/<id>.sb3
-//   /p/<id>[?bpa=..&ss=..]  ->  https://xcratch-st.699.jp/player.html?..#https://share.699.jp/sb3/<id>.sb3
+//   /e/<id>[?bpa=..&ss=..]  ->  https://xcratch.699.jp/st/?bpa=..#https://share.699.jp/sb3/<id>.sb3
+//   /p/<id>[?bpa=..&ss=..]  ->  https://xcratch.699.jp/st/player.html?..#https://share.699.jp/sb3/<id>.sb3
 //
 // The id is the S3 object name (sb3/<id>.sb3). Plain 302; the "open in Scrub"
 // suggestion for iPads lives in the editor itself
@@ -24,7 +24,7 @@ function handler(event) {
             params.push(k + '=' + qs[k].value);
         }
     }
-    var target = 'https://xcratch-st.699.jp/' + (mode === 'p' ? 'player.html' : '') +
+    var target = 'https://xcratch.699.jp/st/' + (mode === 'p' ? 'player.html' : '') +
         (params.length ? '?' + params.join('&') : '') +
         '#https://share.699.jp/sb3/' + id + '.sb3';
     return {
